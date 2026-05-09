@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useTextFileDropTarget } from '../hooks/useTextFileDropTarget.js';
 import { registerRuntimeElement } from '../services/runtimeDomRegistryService.js';
 import type {
@@ -108,11 +108,22 @@ function NovelRefineInstructions({
     refineStartChapter: string;
     refineEndChapter: string;
 }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
     return (
         <div className="refine-instructions-block">
             <div className="refine-instructions-header">
                 <div className="refine-title-actions">
                     <label htmlFor="novel-refine-instructions">Novel Refine Instructions</label>
+                    <button
+                        className="btn btn-secondary btn-icon"
+                        type="button"
+                        style={{ width: '24px', height: '24px', padding: 0, fontSize: '0.7rem' }}
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        title={isExpanded ? 'Collapse' : 'Expand'}
+                    >
+                        {isExpanded ? '▲' : '▼'}
+                    </button>
                     <div className="chapter-range-controls" aria-label="Novel refine chapter range">
                         <label htmlFor="novel-refine-start-chapter">Start Chapter</label>
                         <input
@@ -150,7 +161,7 @@ function NovelRefineInstructions({
             <textarea
                 id="novel-refine-instructions"
                 className="inputbox textarea-refine"
-                rows={1}
+                rows={isExpanded ? 10 : 1}
                 placeholder="Optional: Add specific instructions for Refine Novel, such as pacing, inner life, dialogue, scene expansion, prose cleanup, or things to preserve."
                 spellCheck={false}
                 value={refineInstructions.novel}

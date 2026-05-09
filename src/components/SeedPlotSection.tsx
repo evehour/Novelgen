@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useTextFileDropTarget } from '../hooks/useTextFileDropTarget.js';
 import type {
     EditorTab,
@@ -129,11 +129,22 @@ function PlotRefineInstructions({
     activity: RuntimeActivityViewState;
     refineInstructions: RefineInstructionsViewState;
 }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
     return (
         <div className="refine-instructions-block">
             <div className="refine-instructions-header">
                 <div className="refine-title-actions">
                     <label htmlFor="plot-refine-instructions">Plot Refine Instructions</label>
+                    <button
+                        className="btn btn-secondary btn-icon"
+                        type="button"
+                        style={{ width: '24px', height: '24px', padding: 0, fontSize: '0.7rem' }}
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        title={isExpanded ? 'Collapse' : 'Expand'}
+                    >
+                        {isExpanded ? '▲' : '▼'}
+                    </button>
                     <button
                         id="btn-auto-plot-instructions"
                         className="btn btn-secondary"
@@ -149,7 +160,7 @@ function PlotRefineInstructions({
             <textarea
                 id="plot-refine-instructions"
                 className="inputbox textarea-refine"
-                rows={1}
+                rows={isExpanded ? 10 : 1}
                 placeholder="Optional: Add specific instructions for Refine Plot, such as pacing, tone, relationship focus, part expansion, conflict changes, or things to preserve."
                 spellCheck={false}
                 value={refineInstructions.plot}
