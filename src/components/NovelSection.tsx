@@ -54,13 +54,13 @@ function NovelToolbar({
     return (
         <div className="section-header">
             <div className="action-bar header-actions" style={wrappedActionBarStyle}>
-                <button className="btn btn-primary pulse-hover" id="btn-gen-novel" type="button" disabled={activity.isNovelRunning} onClick={actions.onGenerateNovel}>🚀 Start Novel Generation</button>
-                <button className="btn btn-secondary" id="btn-refine-novel" type="button" title="Refine the current novel chapter-by-chapter against the plot" disabled={activity.isNovelRunning} onClick={actions.onRefineNovel}>✨ Refine Novel</button>
+                <button className="btn btn-primary pulse-hover" id="btn-gen-novel" type="button" disabled={activity.isNovelRunning} onClick={actions.onGenerateNovel}>🚀 Novel Generation</button>
+                <button className="btn btn-secondary" id="btn-refine-novel" type="button" title="Refine the current novel chapter-by-chapter against the plot" disabled={activity.isNovelRunning} onClick={actions.onRefineNovel}>✨ Refine</button>
                 <button className="btn btn-danger" id="btn-stop-novel" type="button" onClick={actions.onStopNovel}>⏹️ Stop</button>
-                <button className="btn btn-ghost" id="btn-clear-novel" type="button" title="Clear current novel content" disabled={activity.isNovelRunning} onClick={actions.onClearNovel}>🗑️ Clear</button>
+                <button className="btn btn-ghost" id="btn-clear-novel" type="button" title="Clear current novel content" disabled={activity.isNovelRunning} onClick={actions.onClearNovel}>🗑️</button>
 
                 <div className="auto-flex" style={nextChapterControlsStyle}>
-                    <label htmlFor="resume-chapter" style={inlineLabelStyle}>Next Chapter</label>
+                    <label htmlFor="resume-chapter" style={inlineLabelStyle}>Next Ch.</label>
                     <input
                         type="number"
                         id="resume-chapter"
@@ -74,7 +74,7 @@ function NovelToolbar({
                 </div>
 
                 <div className="auto-flex novel-file-controls" style={novelFileControlsStyle}>
-                    <button className="btn btn-secondary" id="open-out-folder-btn" type="button" style={toolbarButtonStyle} onClick={actions.onOpenOutputFolder}>📂 Open Output Folder</button>
+                    <button className="btn btn-secondary" id="open-out-folder-btn" type="button" style={toolbarButtonStyle} onClick={actions.onOpenOutputFolder}>📂 Output Folder</button>
                     <select
                         id="saved-novels"
                         className="inputbox"
@@ -87,9 +87,9 @@ function NovelToolbar({
                             <option key={filename} value={filename}>{filename}</option>
                         ))}
                     </select>
-                    <button id="btn-load-novel" className="btn btn-secondary" type="button" title="Load selected novel" style={toolbarButtonStyle} disabled={activity.isNovelRunning} onClick={actions.onLoadNovel}>📂 Load</button>
-                    <button id="btn-refresh-novels" className="btn btn-secondary" type="button" title="Refresh novel list" style={toolbarButtonStyle} disabled={activity.isNovelRunning} onClick={actions.onRefreshNovels}>🔄 Refresh</button>
-                    <button id="btn-save-novel" className="btn btn-secondary" type="button" title="Save current novel" style={toolbarButtonStyle} onClick={actions.onSaveNovel}>💾 Save</button>
+                    <button id="btn-load-novel" className="btn btn-secondary" type="button" title="Load selected novel" style={toolbarButtonStyle} disabled={activity.isNovelRunning} onClick={actions.onLoadNovel}>📂</button>
+                    <button id="btn-refresh-novels" className="btn btn-secondary" type="button" title="Refresh novel list" style={toolbarButtonStyle} disabled={activity.isNovelRunning} onClick={actions.onRefreshNovels}>🔄</button>
+                    <button id="btn-save-novel" className="btn btn-secondary" type="button" title="Save current novel" style={toolbarButtonStyle} onClick={actions.onSaveNovel}>💾</button>
                 </div>
             </div>
         </div>

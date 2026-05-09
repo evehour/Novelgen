@@ -16,7 +16,7 @@ Enter a seed, generate or refine a plot, and let the app produce a full chapter-
   - Generates stories in **Korean**, **Japanese**, or **English**.
 
 - **Hands-Off Novel Creation**
-  - Enter a **Seed**, choose the chapter count, generate a plot, and start novel generation.
+  - Enter a **Seed**, choose the chapter count, generate a plot, and novel generation.
   - Use **🚀 Batch Start** to automatically create multiple story variations from your idea.
     - Pick the version that best matches your taste.
   - **Seamless Previewing:** Review your work instantly with a feature-rich built-in viewer supporting **Markdown**, **KaTeX**, word wrap, per-pane font sizing, **Comfort mode**, and persistent Light / Dark themes for a truly pleasant experience.
@@ -25,7 +25,7 @@ Enter a seed, generate or refine a plot, and let the app produce a full chapter-
   - Full automation is available, but you can still edit the plot, adjust the tone, refine chapters, or guide the story when you want more control.
 
 - **Precision Plot Planning & Refinement**
-  - Manually sculpt your story by creating and editing chapter-by-chapter plot outlines to your exact specifications.
+  - Manually sculpt your story by creating and editing chapter-by-chapter plot to your exact specifications.
   - Add highly specific custom refine instructions to control pacing, tone, relationships, conflict, expansion targets, or details to preserve.
   - Automatically generate professional plot improvement ideas using the **✨ Auto Instructions** feature when you need inspiration.
   - Refine long plots in structured chunks, starting with setup sections and progressing through each story part in order.
@@ -120,12 +120,12 @@ You can generate your novel using two distinct workflows:
 ### Workflow A: Manual Full-Control (Recommended)
 This mode allows you to refine the story's direction before final generation.
 1.  **Input Initial Idea**: Enter a brief concept in the "Plot Seed" box, and/or click **🎲 Auto Seed** to let the AI brainstorm a unique starting point.
-2.  **Generate Plot**: Click **Generate Plot Outline**. The AI will create a chapter-by-chapter summary.
-3.  **Refine Plot (Optional)**: Click **✨ Auto Instructions** to have the AI automatically review your plot and suggest 5-10 specific improvement points, or manually add your own guidance in **Plot Refine Instructions**. Then click **✨ Refine Plot**. The AI first rewrites the setup sections, then refines each story part in order using the revised setup, already-refined earlier parts, and the remaining original chapter outline as boundary/context.
+2.  **Generate Plot**: Click **Generate Plot**. The AI will create a chapter-by-chapter summary.
+3.  **Refine Plot (Optional)**: Click **✨ Auto Instructions** to have the AI automatically review your plot and suggest 5-10 specific improvement points, or manually add your own guidance in **Plot Refine Instructions**. Then click **✨ Refine**. The AI first rewrites the setup sections, then refines each story part in order using the revised setup, already-refined earlier parts, and the remaining original chapter outline as boundary/context.
 4.  **Review & Edit**: You can manually edit the generated plot directly in the UI to fix inconsistencies.
 5.  **Save Plot**: Use the **💾 Save Plot** button to store your outline locally in `output/plot/`.
-6.  **Start Generation**: Click **Start Novel Generation**. The AI will follow your plot exactly, chapter by chapter.
-7.  **Refine Novel (Optional)**: Add manuscript-specific guidance in **Novel Refine Instructions**, then click **✨ Refine Novel** to revise the draft against the plot.
+6.  **Start Generation**: Click **Novel Generation**. The AI will follow your plot exactly, chapter by chapter.
+7.  **Refine Novel (Optional)**: Add manuscript-specific guidance in **Novel Refine Instructions**, then click **✨ Refine** to revise the draft against the plot.
     - Use **Start Chapter** and/or **End Chapter** to refine only part of the draft.
     - Start only: refines from that chapter through the end.
     - End only: refines from the beginning through that chapter.
@@ -158,7 +158,7 @@ The application manages its configuration and storage through the following stru
     - `gemini.txt` (*Legacy*): Previously used for API keys; now automatically migrated to Windows Credential Manager for enhanced security.
 - **Storage Paths**
     - `output/`: Primary directory for generated novel manuscripts (`.txt`).
-    - `output/plot/`: Storage for generated and refined plot outlines (`.txt`).
+    - `output/plot/`: Storage for generated and refined plot (`.txt`).
     - `output/json/`: Essential metadata and continuity JSON files used for resuming generation or refining drafts.
 
 ### 📜 System Prompt Management
@@ -185,7 +185,7 @@ NovelGen AI maintains long-term continuity using a sophisticated **layered memor
 
 Continuity metadata is saved as JSON files in `output/json/`.
 
-1.  **Global Plot Outline**: The full refined plot is always included in the context, ensuring the AI adheres to the master plan and reaches the intended climax.
+1.  **Global Plot**: The full refined plot is always included in the context, ensuring the AI adheres to the master plan and reaches the intended climax.
 2.  **Recent Chapter Summaries**: A sliding window of the **last 4 chapter summaries** provides high-density context for immediate narrative flow.
 3.  **Layered Story State**:
     *   **Facts**: Established canon facts that must remain consistent.

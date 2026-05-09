@@ -96,8 +96,8 @@ function PlotToolbar({
 }) {
     return (
         <div className="action-bar" style={wrappedActionBarStyle}>
-            <button className="btn btn-primary" id="btn-gen-plot" type="button" disabled={activity.isPlotRunning} onClick={actions.onGeneratePlot}>✨ Generate Plot Outline</button>
-            <button className="btn btn-secondary" id="btn-refine-plot" type="button" disabled={activity.isPlotRunning} onClick={actions.onRefinePlot}>✨ Refine Plot</button>
+            <button className="btn btn-primary" id="btn-gen-plot" type="button" disabled={activity.isPlotRunning} onClick={actions.onGeneratePlot}>✨ Generate Plot</button>
+            <button className="btn btn-secondary" id="btn-refine-plot" type="button" disabled={activity.isPlotRunning} onClick={actions.onRefinePlot}>✨ Refine</button>
             <button className="btn btn-danger" id="btn-stop-plot" type="button" onClick={actions.onStopPlot}>⏹️ Stop</button>
 
             <div className="auto-flex plot-file-controls" style={plotFileControlsStyle}>
@@ -113,9 +113,9 @@ function PlotToolbar({
                         <option key={filename} value={filename}>{filename}</option>
                     ))}
                 </select>
-                <button className="btn btn-secondary" id="btn-load-plot" type="button" style={toolbarButtonStyle} onClick={actions.onLoadPlot}>📂 Load</button>
-                <button className="btn btn-secondary" id="btn-refresh-plots" type="button" style={toolbarButtonStyle} onClick={actions.onRefreshPlots}>🔄 Refresh</button>
-                <button className="btn btn-secondary" id="btn-save-plot" type="button" style={toolbarButtonStyle} onClick={actions.onSavePlot}>💾 Save Plot</button>
+                <button className="btn btn-secondary" id="btn-load-plot" type="button" title="Load selected plot" style={toolbarButtonStyle} onClick={actions.onLoadPlot}>📂</button>
+                <button className="btn btn-secondary" id="btn-refresh-plots" type="button" title="Refresh plot list" style={toolbarButtonStyle} onClick={actions.onRefreshPlots}>🔄</button>
+                <button className="btn btn-secondary" id="btn-save-plot" type="button" title="Save current plot" style={toolbarButtonStyle} onClick={actions.onSavePlot}>💾</button>
             </div>
         </div>
     );
