@@ -39,11 +39,21 @@ function SeedEditor({
     seedTypography,
 }: SeedEditorProps) {
     const seedDrop = useTextFileDropTarget('seed', 'Seed', actions.onDroppedTextLoaded);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <div className="tabs-container" data-for="plot-seed">
             <div className="tabs-header">
                 <span className="tab-label">Seed</span>
+                <button
+                    className="btn btn-secondary btn-icon"
+                    type="button"
+                    style={{ width: '24px', height: '24px', padding: 0, fontSize: '0.7rem', marginRight: '4px' }}
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    title={isExpanded ? 'Collapse' : 'Expand'}
+                >
+                    {isExpanded ? '▲' : '▼'}
+                </button>
                 <button className={`tab-btn${activeTab === 'edit' ? ' active' : ''}`} type="button" data-tab="edit" onClick={() => actions.onEditorTabChange('seed', 'edit')}>✍️ Edit</button>
                 <button className={`tab-btn${activeTab === 'preview' ? ' active' : ''}`} type="button" data-tab="preview" onClick={() => actions.onEditorTabChange('seed', 'preview')}>👁️ Preview</button>
                 <button
@@ -66,7 +76,7 @@ function SeedEditor({
                     <textarea
                         id="plot-seed"
                         className="inputbox textarea-seed"
-                        rows={3}
+                        rows={isExpanded ? 10 : 3}
                         placeholder="Enter the core novel idea or auto-generate..."
                         spellCheck={false}
                         value={seed}
@@ -184,11 +194,21 @@ function PlotEditor({
 }: PlotEditorProps) {
     const tokenEstimate = getTokenEstimate(plotContent);
     const plotDrop = useTextFileDropTarget('plot', 'Plot', actions.onDroppedTextLoaded);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <div className="tabs-container flex-grow" data-for="plot-content">
             <div className="tabs-header">
                 <span className="tab-label">Plot</span>
+                <button
+                    className="btn btn-secondary btn-icon"
+                    type="button"
+                    style={{ width: '24px', height: '24px', padding: 0, fontSize: '0.7rem', marginRight: '4px' }}
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    title={isExpanded ? 'Collapse' : 'Expand'}
+                >
+                    {isExpanded ? '▲' : '▼'}
+                </button>
                 <button className={`tab-btn${activeTab === 'edit' ? ' active' : ''}`} type="button" data-tab="edit" onClick={() => actions.onEditorTabChange('plot', 'edit')}>✍️ Edit</button>
                 <button className={`tab-btn${activeTab === 'preview' ? ' active' : ''}`} type="button" data-tab="preview" onClick={() => actions.onEditorTabChange('plot', 'preview')}>👁️ Preview</button>
                 <span id="plot-token-count" className="token-count" title={tokenEstimate.title}>{tokenEstimate.label}</span>
@@ -204,7 +224,7 @@ function PlotEditor({
                     <textarea
                         id="plot-content"
                         className="inputbox textarea-plot"
-                        rows={8}
+                        rows={isExpanded ? 20 : 8}
                         placeholder="Generated plot will appear here. You can manually edit it before generating the novel."
                         spellCheck={false}
                         value={plotContent}

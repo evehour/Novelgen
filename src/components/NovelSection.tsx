@@ -188,11 +188,21 @@ function NovelEditor({
     novelTypography,
 }: NovelEditorProps) {
     const novelDrop = useTextFileDropTarget('novel', 'Novel', actions.onDroppedTextLoaded);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <div className="tabs-container flex-grow" data-for="novel-content">
             <div className="tabs-header">
                 <span className="tab-label">Novel</span>
+                <button
+                    className="btn btn-secondary btn-icon"
+                    type="button"
+                    style={{ width: '24px', height: '24px', padding: 0, fontSize: '0.7rem', marginRight: '4px' }}
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    title={isExpanded ? 'Collapse' : 'Expand'}
+                >
+                    {isExpanded ? '▲' : '▼'}
+                </button>
                 <button className={`tab-btn${activeTab === 'edit' ? ' active' : ''}`} type="button" data-tab="edit" onClick={() => actions.onEditorTabChange('novel', 'edit')}>✍️ Edit</button>
                 <button className={`tab-btn${activeTab === 'preview' ? ' active' : ''}`} type="button" data-tab="preview" onClick={() => actions.onEditorTabChange('novel', 'preview')}>👁️ Preview</button>
                 <select
@@ -219,6 +229,7 @@ function NovelEditor({
                     <textarea
                         id="novel-content"
                         className="inputbox textarea-novel"
+                        rows={isExpanded ? 20 : undefined}
                         placeholder="The generated novel will stream here..."
                         spellCheck={false}
                         value={novelContent}
