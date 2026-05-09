@@ -1,4 +1,4 @@
-import type { CSSProperties, Ref } from 'react';
+import { useState, type CSSProperties, type Ref } from 'react';
 import { useTextFileDropTarget } from '../hooks/useTextFileDropTarget.js';
 import type {
     ApiSettingsViewState,
@@ -114,6 +114,7 @@ function PersonaPromptCard({
         'System Prompt Details',
         actions.onDroppedTextLoaded,
     );
+    const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <div className="card settings-group">
@@ -136,7 +137,18 @@ function PersonaPromptCard({
                 {...promptDrop.dropTargetProps}
             >
                 <div className="label-header">
-                    <label htmlFor="system-prompt">System Prompt Details</label>
+                    <div className="auto-flex" style={{ gap: '4px' }}>
+                        <label htmlFor="system-prompt" style={{ marginBottom: 0 }}>System Prompt Details</label>
+                        <button
+                            className="btn btn-secondary btn-icon"
+                            type="button"
+                            style={{ width: '20px', height: '20px', padding: 0, fontSize: '0.6rem' }}
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            title={isExpanded ? 'Collapse' : 'Expand'}
+                        >
+                            {isExpanded ? '▲' : '▼'}
+                        </button>
+                    </div>
                     <div className="auto-flex">
                         {promptEditor.promptStatus && (
                             <span id="prompt-status-msg" className="status-msg">{promptEditor.promptStatus}</span>
@@ -147,7 +159,7 @@ function PersonaPromptCard({
                 <textarea
                     id="system-prompt"
                     className="inputbox textarea-small"
-                    rows={4}
+                    rows={isExpanded ? 15 : 4}
                     spellCheck={false}
                     autoCorrect="off"
                     autoCapitalize="off"
