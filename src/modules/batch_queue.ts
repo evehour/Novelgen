@@ -132,6 +132,11 @@ export function startSingleNovelJob({ getLang, generateNovel, detectNextChapter,
         return;
     }
 
+    if (runtimeSessionState.isWorkerRunning && runtimeSessionState.stopRequested) {
+        showToast('Generation is stopping. Please wait a moment before queueing another novel.', 'warning');
+        return;
+    }
+
     const editor = getEditorSnapshot();
     if (!editor.plot.trim()) {
         showToast('Plot is empty! Generate a plot outline first.', 'warning');
@@ -156,11 +161,12 @@ export function startSingleNovelJob({ getLang, generateNovel, detectNextChapter,
         updateBatchButtons();
     }
 
+    const queueBehindRunningJob = runtimeSessionState.isWorkerRunning && !runtimeSessionState.isPaused;
     runtimeSessionState.taskQueue.push({
         uid: Date.now() + Math.random(),
         type: 'single',
         plotOutline: normalizedPlot,
-        startChapter: parseInt(editor.nextChapter) || 1,
+        startChapter: queueBehindRunningJob ? 1 : (parseInt(editor.nextChapter) || 1),
         totalChapters,
         targetTokens: getTargetTokensParam(2000),
         lang: getLang(),
@@ -168,6 +174,9 @@ export function startSingleNovelJob({ getLang, generateNovel, detectNextChapter,
     });
 
     setBatchQueueCount(runtimeSessionState.taskQueue.length);
+    if (queueBehindRunningJob) {
+        showToast('Novel generation queued with the current plot/settings.', 'success');
+    }
     processQueue({ generateNovel, detectNextChapter, updatePlotTokenCount, reloadNovelList, refreshNovelChapterJump });
 }
 

@@ -16,6 +16,7 @@ import { normalizePlotOutlineOutput, refinePlotInChunks } from '../modules/plot_
 import { invoke } from '../modules/tauri_api.js';
 import { showToast } from '../modules/toast.js';
 import { getTotalChaptersParam } from './generationParamsService.js';
+import { inferTotalChaptersFromPlot } from '../modules/text_utils.js';
 import {
     setComfortMode,
     setFontSize,
@@ -303,7 +304,11 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
         if (!filename) return;
         try {
             const content = await invoke<string>('load_plot', { filename });
-            const totalChapters = getTotalChaptersParam(0);
+            const inferredTotalChapters = inferTotalChaptersFromPlot(content);
+            const totalChapters = inferredTotalChapters || getTotalChaptersParam(0);
+            if (inferredTotalChapters > 0) {
+                runtimeViewStateStore.setGenerationParams({ totalChapters: String(inferredTotalChapters) });
+            }
             setPlotText(normalizePlotOutlineOutput(content, { totalChapters }));
             options.updatePlotTokenCount();
             const message = `✅ Loaded: ${filename}`;

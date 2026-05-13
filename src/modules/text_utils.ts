@@ -198,6 +198,14 @@ export function splitPlotIntoChapters(plotText) {
     return map;
 }
 
+export function inferTotalChaptersFromPlot(plotText) {
+    const chapterNumbers = Object.keys(splitPlotIntoChapters(plotText || ''))
+        .map(num => parseInt(num, 10))
+        .filter(num => Number.isFinite(num) && num > 0);
+
+    return chapterNumbers.length > 0 ? Math.max(...chapterNumbers) : 0;
+}
+
 export function missingPlotChapters(plotText, totalChapters) {
     const total = Math.max(0, parseInt(totalChapters, 10) || 0);
     if (total <= 0) return [];

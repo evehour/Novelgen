@@ -1,4 +1,5 @@
 import { normalizePlotOutlineOutput } from '../modules/plot_refine.js';
+import { inferTotalChaptersFromPlot } from '../modules/text_utils.js';
 import type { TextDropTarget } from '../types/app.js';
 import { getTotalChaptersParam } from './generationParamsService.js';
 import {
@@ -35,7 +36,12 @@ export function createRuntimeDropHandler({
         }
 
         if (target === 'plot') {
-            setPlotText(normalizePlotOutlineOutput(text, { totalChapters: getTotalChaptersParam(0) }));
+            const inferredTotalChapters = inferTotalChaptersFromPlot(text);
+            const totalChapters = inferredTotalChapters || getTotalChaptersParam(0);
+            if (inferredTotalChapters > 0) {
+                runtimeViewStateStore.setGenerationParams({ totalChapters: String(inferredTotalChapters) });
+            }
+            setPlotText(normalizePlotOutlineOutput(text, { totalChapters }));
             updatePlotTokenCount();
         }
 
