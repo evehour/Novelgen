@@ -218,6 +218,7 @@ export async function startOrResumeBatchQueue({
 
     const count = parseInt(runtimeViewStateStore.getSnapshot().batchSettings.batchCount, 10) || 1;
     const batchSettings = runtimeViewStateStore.getSnapshot().batchSettings;
+    const preserveDisplayedNovelUntilGeneration = runtimeSessionState.isWorkerRunning && !runtimeSessionState.isPaused;
     for (let i = 0; i < count; i++) {
         runtimeSessionState.taskQueue.push({
             uid: Date.now() + Math.random(),
@@ -234,9 +235,14 @@ export async function startOrResumeBatchQueue({
             novelRefineFinished: false,
             lastRefinedPlotPart: 0,
             lastRefinedChapter: 0,
+            preserveDisplayedNovelUntilGeneration,
+            startedNovelGeneration: false,
         });
     }
     setBatchQueueCount(runtimeSessionState.taskQueue.length);
+    if (preserveDisplayedNovelUntilGeneration) {
+        refreshNovelChapterJump?.();
+    }
     processQueue({ generateNovel, detectNextChapter, updatePlotTokenCount, reloadNovelList, refreshNovelChapterJump });
 }
 
@@ -448,6 +454,7 @@ async function runSingleJob(job, { generateNovel, detectNextChapter, reloadNovel
 
 async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTokenCount, reloadNovelList, refreshNovelChapterJump }) {
     const isSameJob = job.uid === runtimeSessionState.lastRanJobUid;
+    const canResumeDisplayedBatchNovel = isSameJob && job.startedNovelGeneration;
     runtimeSessionState.lastRanJobUid = job.uid;
     if (!isSameJob) {
         runtimeSessionState.clearActiveNovel();
@@ -482,7 +489,10 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
         if (!isSameJob || !plotActuallyComplete) {
             console.log("[Batch] New or incomplete job detected, clearing UI fields.");
             setPlotText("");
-            setNovelText("");
+            if (!job.preserveDisplayedNovelUntilGeneration) {
+                setNovelText("");
+                refreshNovelChapterJump?.({ preserveValue: false });
+            }
             clearNovelRefineChapterRange();
             runtimeSessionState.clearLoadedNovel();
             updatePlotTokenCount();
@@ -631,9 +641,9 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
         return;
     }
 
-    let currentText = getEditorSnapshot().novel;
+    let currentText = canResumeDisplayedBatchNovel ? getEditorSnapshot().novel : '';
     if (!currentText) {
-        setNovelText('');
+        refreshNovelChapterJump?.();
     }
     let completedNovelFilename = null;
     let safetyLimit = 0;
@@ -692,6 +702,12 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
         currentText = getCleanedInitialText(currentText, lang, nextCh);
 
         try {
+            if (!job.startedNovelGeneration) {
+                job.startedNovelGeneration = true;
+                job.preserveDisplayedNovelUntilGeneration = false;
+                setNovelText('');
+                refreshNovelChapterJump?.({ preserveValue: false });
+            }
             const result = await generateNovel({
                 startChapter: nextCh, totalChapters: job.totalChapters,
                 targetTokens: job.targetTokens, lang,
@@ -763,6 +779,7 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
                     completedNovelFilename = refined.filename || completedNovelFilename;
                     setActiveNovelFilename(completedNovelFilename);
                     setNovelText(currentText);
+                    refreshNovelChapterJump?.();
                     setNovelStatus(`[Batch] ✅ Novel refine done`);
                     job.novelRefineFinished = true;
                 }

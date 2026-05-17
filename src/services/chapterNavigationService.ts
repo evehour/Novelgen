@@ -14,6 +14,27 @@ interface ChapterNavigationOptions {
     getLang: () => Language;
 }
 
+const CHAPTER_JUMP_LANGUAGES: Language[] = ['Korean', 'Japanese', 'English'];
+
+function getChapterJumpLanguages(preferredLang: Language) {
+    return [
+        preferredLang,
+        ...CHAPTER_JUMP_LANGUAGES.filter(lang => lang !== preferredLang),
+    ];
+}
+
+function getNovelChapterHeadingsWithFallback(text: string, preferredLang: Language) {
+    let bestHeadings = [];
+    for (const lang of getChapterJumpLanguages(preferredLang)) {
+        const headings = getNovelChapterHeadings(text, lang);
+        if (headings.length > bestHeadings.length) {
+            bestHeadings = headings;
+        }
+    }
+
+    return bestHeadings;
+}
+
 function formatChapterJumpLabel(heading) {
     const cleanHeader = String(heading.header || '')
         .replace(/^#{1,6}\s+/, '')
@@ -152,7 +173,7 @@ export function createChapterNavigation({ getLang }: ChapterNavigationOptions): 
     function refreshNovelChapterJump({ preserveValue = true } = {}) {
         const { editor } = runtimeViewStateStore.getSnapshot();
         const selectedChapter = preserveValue ? editor.novelChapterJump : '';
-        const headings = getNovelChapterHeadings(editor.novel, getLang());
+        const headings = getNovelChapterHeadingsWithFallback(editor.novel, getLang());
         const jumpOptions = buildChapterJumpOptions(headings);
         const selectedStillExists = jumpOptions.some(option => option.value === selectedChapter);
 
@@ -169,8 +190,9 @@ export function createChapterNavigation({ getLang }: ChapterNavigationOptions): 
         if (!preview) return null;
 
         const candidates = preview.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,blockquote');
+        const languages = getChapterJumpLanguages(getLang());
         return Array.from<Element>(candidates).find(element =>
-            matchesChapterHeadingText(element.textContent, chapterNumber, getLang())
+            languages.some(lang => matchesChapterHeadingText(element.textContent, chapterNumber, lang))
         ) || null;
     }
 

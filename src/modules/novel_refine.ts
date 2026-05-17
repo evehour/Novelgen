@@ -53,13 +53,13 @@ function parseChapterHeadingLine(line, lang) {
     const raw = String(line || '').trim();
     if (!raw) return null;
 
-    const { text, hasMarkdownHeading } = stripHeadingDecoration(raw);
+    const { text } = stripHeadingDecoration(raw);
     if (!text || charCount(text) > 90) return null;
 
     let match = null;
     if (lang === 'Korean') {
         match = text.match(/^(제\s*)?([0-9０-９]+)\s*장(?:\s*[:：.)、\-–—]\s*.*|\s+.*|$)/i);
-        if (!match || (!hasMarkdownHeading && !match[1])) return null;
+        if (!match) return null;
         return {
             number: parseChapterNumber(match[2]),
             header: raw,
@@ -68,7 +68,7 @@ function parseChapterHeadingLine(line, lang) {
 
     if (lang === 'Japanese') {
         match = text.match(/^(第\s*)?([0-9０-９]+)\s*章(?:\s*[:：.)、\-–—]\s*.*|\s+.*|$)/i);
-        if (!match || (!hasMarkdownHeading && !match[1])) return null;
+        if (!match) return null;
         return {
             number: parseChapterNumber(match[2]),
             header: raw,

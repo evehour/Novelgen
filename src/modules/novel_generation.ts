@@ -26,7 +26,9 @@ function shouldRefreshChapterJumpFromEvent(event) {
     if (!event || event.is_chapter_preview) return false;
 
     const status = String(event.status || '');
-    return event.is_finished || status.startsWith('Summarizing Chapter ');
+    return event.content !== undefined
+        || event.is_finished
+        || status.startsWith('Summarizing Chapter ');
 }
 
 function completedChapterFromEvent(event) {
@@ -77,7 +79,9 @@ export async function generateNovel({
     let chapterStreamBaseText = null;
     let lastNotifiedFinishedChapter = 0;
     let workingNovelFilename = novelFilename;
-    let latestNovelText = String(initialText || getEditorSnapshot().novel || '');
+    let latestNovelText = initialText === undefined || initialText === null
+        ? String(getEditorSnapshot().novel || '')
+        : String(initialText);
     try {
         if (workingNovelFilename) {
             onFilenameKnown(workingNovelFilename);
