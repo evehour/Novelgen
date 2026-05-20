@@ -165,7 +165,7 @@ function PlotRefineInstructions({
                             type="number"
                             id="plot-refine-start-part"
                             className="inputbox chapter-range-input"
-                            min="1"
+                            min="0"
                             placeholder="All"
                             value={refineStartPart}
                             onChange={event => actions.onPlotRefineStartPartChange(event.currentTarget.value)}
@@ -175,7 +175,7 @@ function PlotRefineInstructions({
                             type="number"
                             id="plot-refine-end-part"
                             className="inputbox chapter-range-input"
-                            min="1"
+                            min="0"
                             placeholder="All"
                             value={refineEndPart}
                             onChange={event => actions.onPlotRefineEndPartChange(event.currentTarget.value)}

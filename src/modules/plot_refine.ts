@@ -771,15 +771,25 @@ function parseOptionalPartBound(value) {
         ).trim(),
         10,
     );
-    return Number.isFinite(parsed) && parsed >= 1 ? parsed : null;
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 }
 
 function resolvePartRange({ startPart = 1, endPart = null, partCount = 0 }) {
     const maxPart = Math.max(1, partCount);
-    const start = Math.min(Math.max(parseInt(String(startPart || 1), 10) || 1, 1), maxPart);
-    let end = endPart === null || endPart === undefined
+    
+    let startVal = parseInt(String(startPart), 10);
+    if (isNaN(startVal)) {
+        startVal = 1;
+    }
+    const start = Math.min(Math.max(startVal, 0), maxPart);
+
+    let endVal = endPart === null || endPart === undefined
         ? maxPart
-        : Math.min(Math.max(parseInt(String(endPart), 10) || start, 1), maxPart);
+        : parseInt(String(endPart), 10);
+    if (isNaN(endVal)) {
+        endVal = start;
+    }
+    let end = Math.min(Math.max(endVal, 0), maxPart);
 
     if (end < start) {
         end = start;
@@ -1027,13 +1037,14 @@ export async function refinePlotTextInChunks({
     assertCompletePlotOutline(sourcePlot, totalChapters, 'Source plot outline');
     const range = resolvePartRange({ startPart, endPart, partCount: parts.length });
     const isRangeLimited = range.start > 1 || endPart !== null && endPart !== undefined;
+    const shouldRefineSettings = !isRangeLimited || range.start === 0;
     const rangeLabel = isRangeLimited
         ? `, selected part ${range.start}${range.end === range.start ? '' : `-${range.end}`}`
         : '';
     onStatus?.(`⏳ Preparing chunked refine (${parts.length} part${parts.length === 1 ? '' : 's'} detected${rangeLabel})...`);
 
     let refinedSettings = settingsText;
-    if (!isRangeLimited) {
+    if (shouldRefineSettings) {
         const settingsPrompt = buildSettingsRefinePrompt({ lang, totalChapters, plotText: sourcePlot, refineInstructions });
         const rawRefinedSettings = await generatePlotChunk(settingsPrompt, {
             statusText: "⏳ Refining settings...",

@@ -132,10 +132,20 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
         return Number.isFinite(parsed) && parsed >= 1 ? parsed : null;
     }
 
+    function parsePartBound(value: string) {
+        const parsed = parseInt(
+            String(value || '').replace(/[０-９]/g, ch =>
+                String.fromCharCode(ch.charCodeAt(0) - 0xfee0)
+            ).trim(),
+            10,
+        );
+        return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+    }
+
     function setPlotRefineStartPart(part: string) {
-        const startPart = parsePositiveChapter(part);
+        const startPart = parsePartBound(part);
         const currentEnd = getEditorSnapshot().plotRefineEndPart;
-        const endPart = parsePositiveChapter(currentEnd);
+        const endPart = parsePartBound(currentEnd);
 
         setPlotRefinePartRange({
             start: part,
@@ -146,8 +156,8 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
     }
 
     function setPlotRefineEndPart(part: string) {
-        const startPart = parsePositiveChapter(getEditorSnapshot().plotRefineStartPart);
-        const endPart = parsePositiveChapter(part);
+        const startPart = parsePartBound(getEditorSnapshot().plotRefineStartPart);
+        const endPart = parsePartBound(part);
 
         setPlotRefinePartRange({
             end: startPart !== null && endPart !== null && endPart < startPart
@@ -179,7 +189,7 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
             };
         }
 
-        const start = Math.max(1, Math.min(startPart ?? 1, parts.length));
+        const start = Math.max(0, Math.min(startPart ?? 1, parts.length));
         const end = Math.max(start, Math.min(endPart ?? start, parts.length));
         const scopedParts = [];
         parts.forEach((part, index) => {
@@ -191,7 +201,9 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
             }
         });
 
-        const rangeLabel = start === end ? `part ${start}` : `parts ${start}-${end}`;
+        const rangeLabel = start === 0
+            ? (end === 0 ? 'settings only' : `settings and part${end === 1 ? ' 1' : `s 1-${end}`}`)
+            : (start === end ? `part ${start}` : `parts ${start}-${end}`);
         return {
             scopedPlotOutline: [
                 settingsText,
@@ -270,8 +282,8 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
         if (!startPartText && endPartText) {
             setPlotRefinePartRange({ start: '1' });
         }
-        const startPart = parsePositiveChapter(startPartText || (endPartText ? '1' : ''));
-        let endPart = parsePositiveChapter(endPartText);
+        const startPart = parsePartBound(startPartText || (endPartText ? '1' : ''));
+        let endPart = parsePartBound(endPartText);
         if (startPart !== null && endPart !== null && endPart < startPart) {
             endPart = startPart;
             setPlotRefinePartRange({ end: startPart });
