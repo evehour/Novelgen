@@ -129,7 +129,6 @@ This mode allows you to refine the story's direction before final generation.
     - Start only: refines from that part through the end.
     - End only: refines from Part 1 through that part.
     - Same Start and End: refines only that part.
-    - If Start Part is greater than End Part, End Part is automatically corrected to match Start Part so the selected part is refined.
     - **✨ Auto Instructions** supports both single-part and multi-part ranges. When a range is selected, it analyzes the selected parts with adjacent boundary parts as continuity context.
 4.  **Review & Edit**: You can manually edit the generated plot directly in the UI to fix inconsistencies.
 5.  **Save Plot**: Use the **💾 Save Plot** button to store your outline locally in `output/plot/`.
