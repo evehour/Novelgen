@@ -24,7 +24,7 @@ fn finish_reason(response_json: &Value) -> Option<String> {
 fn is_successful_finish_reason(reason: &str) -> bool {
     matches!(
         reason.trim().to_ascii_lowercase().as_str(),
-        "stop" | "end_turn"
+        "stop" | "end_turn" | "length" | "max_tokens"
     )
 }
 
