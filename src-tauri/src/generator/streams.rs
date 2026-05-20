@@ -603,7 +603,7 @@ pub async fn generate_novel_stream(
         );
         body_map.insert("temperature".to_string(), json!(params.temperature));
         body_map.insert("top_p".to_string(), json!(params.top_p));
-        body_map.insert("max_tokens".to_string(), json!(params.target_tokens + 1000));
+        body_map.insert("max_tokens".to_string(), json!(params.target_tokens.saturating_add(4000).max(8192)));
         body_map.insert("stream".to_string(), json!(true));
 
         if !params.api_base.contains("googleapis.com") {
