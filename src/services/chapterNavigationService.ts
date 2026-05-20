@@ -5,7 +5,7 @@ import { getRuntimeElement } from './runtimeDomRegistryService.js';
 import { runtimeViewStateStore } from './runtimeViewStateStore.js';
 
 export interface ChapterNavigationController {
-    refreshNovelChapterJump(options?: { preserveValue?: boolean }): unknown[];
+    refreshNovelChapterJump(options?: { preserveValue?: boolean; debounce?: boolean }): Promise<unknown[]>;
     scrollNovelToSelectedChapter(options?: { silent?: boolean }): void;
     initNovelChapterJump(): void;
 }
@@ -169,20 +169,78 @@ function scrollElementIntoScrollableAncestor(target: Element, { offset = 52 } = 
     scroller.scrollTop += targetRect.top - scrollerRect.top - offset;
 }
 
+let lastNovelText = '';
+let pendingTimeoutId: any = null;
+let maxWaitTimeoutId: any = null;
+
 export function createChapterNavigation({ getLang }: ChapterNavigationOptions): ChapterNavigationController {
-    function refreshNovelChapterJump({ preserveValue = true } = {}) {
-        const { editor } = runtimeViewStateStore.getSnapshot();
-        const selectedChapter = preserveValue ? editor.novelChapterJump : '';
-        const headings = getNovelChapterHeadingsWithFallback(editor.novel, getLang());
-        const jumpOptions = buildChapterJumpOptions(headings);
-        const selectedStillExists = jumpOptions.some(option => option.value === selectedChapter);
+    function refreshNovelChapterJump({ preserveValue = true, debounce = true } = {}) {
+        const clearTimers = () => {
+            if (pendingTimeoutId) {
+                clearTimeout(pendingTimeoutId);
+                pendingTimeoutId = null;
+            }
+            if (maxWaitTimeoutId) {
+                clearTimeout(maxWaitTimeoutId);
+                maxWaitTimeoutId = null;
+            }
+        };
 
-        runtimeViewStateStore.setEditor({
-            novelChapterJump: selectedStillExists ? selectedChapter : '',
-            novelChapterJumpOptions: jumpOptions,
+        const execute = () => {
+            clearTimers();
+
+            const { editor } = runtimeViewStateStore.getSnapshot();
+            if (editor.novel === lastNovelText) {
+                return [];
+            }
+            lastNovelText = editor.novel;
+
+            const selectedChapter = preserveValue ? editor.novelChapterJump : '';
+            const headings = getNovelChapterHeadingsWithFallback(editor.novel, getLang());
+            const jumpOptions = buildChapterJumpOptions(headings);
+            const selectedStillExists = jumpOptions.some(option => option.value === selectedChapter);
+
+            runtimeViewStateStore.setEditor({
+                novelChapterJump: selectedStillExists ? selectedChapter : '',
+                novelChapterJumpOptions: jumpOptions,
+            });
+
+            return headings;
+        };
+
+        if (!debounce) {
+            clearTimers();
+            return Promise.resolve(execute());
+        }
+
+        const debounceDelay = 150;
+        const maxWait = 2000;
+
+        if (pendingTimeoutId) {
+            clearTimeout(pendingTimeoutId);
+        }
+
+        if (!maxWaitTimeoutId) {
+            maxWaitTimeoutId = setTimeout(() => {
+                maxWaitTimeoutId = null;
+                if (pendingTimeoutId) {
+                    clearTimeout(pendingTimeoutId);
+                    pendingTimeoutId = null;
+                }
+                execute();
+            }, maxWait);
+        }
+
+        return new Promise<unknown[]>((resolve) => {
+            pendingTimeoutId = setTimeout(() => {
+                pendingTimeoutId = null;
+                if (maxWaitTimeoutId) {
+                    clearTimeout(maxWaitTimeoutId);
+                    maxWaitTimeoutId = null;
+                }
+                resolve(execute());
+            }, debounceDelay);
         });
-
-        return headings;
     }
 
     function findNovelPreviewChapterElement(chapterNumber: number) {
@@ -243,7 +301,7 @@ export function createChapterNavigation({ getLang }: ChapterNavigationOptions): 
     }
 
     function initNovelChapterJump() {
-        refreshNovelChapterJump({ preserveValue: false });
+        void refreshNovelChapterJump({ preserveValue: false, debounce: false });
     }
 
     return {

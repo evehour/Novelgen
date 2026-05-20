@@ -18,7 +18,7 @@ interface LoadNovelOptions {
     getLang: () => Language;
     saveSettings: () => Promise<void>;
     detectNextChapter: () => Promise<void>;
-    refreshNovelChapterJump: (options?: { preserveValue?: boolean }) => unknown[];
+    refreshNovelChapterJump: (options?: { preserveValue?: boolean; debounce?: boolean }) => Promise<unknown[]>;
     updatePlotTokenCount: () => void;
 }
 
@@ -97,7 +97,7 @@ export async function loadNovel({
         const [text, metaJson] = await invoke<[string, string | null]>('load_novel', { filename });
 
         setNovelText(text);
-        refreshNovelChapterJump({ preserveValue: false });
+        void refreshNovelChapterJump({ preserveValue: false, debounce: false });
 
         if (metaJson) {
             const meta = JSON.parse(metaJson);

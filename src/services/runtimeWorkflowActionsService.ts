@@ -62,7 +62,7 @@ interface RuntimeWorkflowActionOptions {
     saveNovel: () => Promise<void>;
     reloadPlotList: () => Promise<void>;
     detectNextChapter: () => Promise<void>;
-    refreshNovelChapterJump: (options?: { preserveValue?: boolean }) => unknown[];
+    refreshNovelChapterJump: (options?: { preserveValue?: boolean; debounce?: boolean }) => Promise<unknown[]>;
     scrollNovelToSelectedChapter: (options?: { silent?: boolean }) => void;
     clearLoadedNovelSession: () => void;
 }
@@ -340,7 +340,7 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
         setNextChapter('1');
         clearNovelRefineChapterRangeState();
         clearNovelRefineChapterRange();
-        options.refreshNovelChapterJump({ preserveValue: false });
+        void options.refreshNovelChapterJump({ preserveValue: false, debounce: false });
         options.clearLoadedNovelSession();
     }
 
@@ -354,7 +354,7 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
         });
 
         if (surface === 'novel') {
-            options.refreshNovelChapterJump();
+            void options.refreshNovelChapterJump({ debounce: false });
             if (tab === 'preview') {
                 requestAnimationFrame(() => options.scrollNovelToSelectedChapter({ silent: true }));
             }
@@ -424,7 +424,7 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
         },
         onNovelContentChange: (content) => {
             setNovelText(content);
-            options.refreshNovelChapterJump();
+            void options.refreshNovelChapterJump({ debounce: true });
         },
         onNextChapterChange: setNextChapter,
         onNovelRefineStartChapterChange: (chapter) => setNovelRefineChapterRange({ start: chapter }),

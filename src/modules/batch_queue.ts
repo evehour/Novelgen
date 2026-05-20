@@ -51,6 +51,7 @@ function setBatchQueueCount(queueCount) {
 
 function clearBatchWorkspace(updatePlotTokenCount, refreshNovelChapterJump = null) {
     setPlotText("");
+    setPlotStatusView("Idle", "idle");
     setNovelText("");
     refreshNovelChapterJump?.({ preserveValue: false });
     setNextChapter(1);
@@ -489,6 +490,7 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
         if (!isSameJob || !plotActuallyComplete) {
             console.log("[Batch] New or incomplete job detected, clearing UI fields.");
             setPlotText("");
+            setPlotStatusView("Idle", "idle");
             if (!job.preserveDisplayedNovelUntilGeneration) {
                 setNovelText("");
                 refreshNovelChapterJump?.({ preserveValue: false });
@@ -498,12 +500,16 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
             updatePlotTokenCount();
         }
 
+        setPlotStatusView('⏳ Generating...', 'generating');
         setNovelStatus(`[Batch] Generating plot (${runtimeSessionState.taskQueue.length} remaining)...`);
         let plotError = null;
         let generatedPlotThisRun = false;
         const plotChannel = new Channel();
         plotChannel.onmessage = (ev) => {
-            if (ev.error) plotError = ev.error;
+            if (ev.error) {
+                plotError = ev.error;
+                setPlotStatusView('❌ Error', 'error');
+            }
             plotOutline = ev.content;
             setPlotText(plotOutline);
             updatePlotTokenCount();
@@ -538,11 +544,14 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
             const missingGeneratedChapters = missingPlotChapters(plotOutline, job.totalChapters);
             if (missingGeneratedChapters.length > 0) {
                 plotError = `Generated plot is incomplete. Missing chapters: ${missingGeneratedChapters.join(', ')}. Please retry before novel generation.`;
+            } else {
+                setPlotStatusView('✅ Done', 'completed');
             }
         }
 
         if (plotError) {
             setNovelStatus(`[Batch] Plot Error: ${plotError}`);
+            setPlotStatusView(`❌ Error: ${plotError}`, 'error');
             setPlotText("");
             updatePlotTokenCount();
             runtimeSessionState.stopRequested = true;
@@ -551,6 +560,7 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
         }
     } else {
         setNovelStatus(`[Batch] Resuming from existing plot (${runtimeSessionState.taskQueue.length} remaining)...`);
+        setPlotStatusView('✅ Done', 'completed');
     }
 
     if (runtimeSessionState.stopRequested) return;
@@ -562,6 +572,7 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
             let refineInstructions = runtimeViewStateStore.getSnapshot().refineInstructions.plot.trim();
             if (job.autoRefinePlotInstructions) {
                 setNovelStatus(`[Batch] Generating Auto Instructions...`);
+                setPlotStatusView(`⏳ Auto Instructions...`, 'refining');
                 const apiParams = getRuntimeApiParams();
                 const autoInstructionsResult = await generatePlotAutoInstructions({
                     lang,
@@ -578,6 +589,7 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
             }
 
             setNovelStatus(`[Batch] Refining plot before novel generation...`);
+            setPlotStatusView(`⏳ Refining...`, 'refining');
             plotOutline = await refinePlotTextInChunks({
                 originalPlot: plotOutline,
                 lang,
@@ -585,9 +597,16 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
                 refineInstructions,
                 startPart: job.lastRefinedPlotPart ? job.lastRefinedPlotPart + 1 : 1,
                 onStatus: (msg) => {
-                    setNovelStatus(`[Batch] ${msg.replace(/^⏳\s*/, '')}`);
+                    const cleanMsg = msg.replace(/^⏳\s*/, '');
+                    setNovelStatus(`[Batch] ${cleanMsg}`);
                     if (msg === "✅ Done") {
                         setPlotStatusView("✅ Done", 'completed');
+                    } else if (msg.includes("Error") || msg.includes("❌")) {
+                        setPlotStatusView(cleanMsg, 'error');
+                    } else if (msg.includes("Stopped") || msg.includes("🛑")) {
+                        setPlotStatusView(cleanMsg, 'cancelled');
+                    } else {
+                        setPlotStatusView(msg, 'refining');
                     }
                 },
                 onPartFinished: (p) => { job.lastRefinedPlotPart = p; },
@@ -606,7 +625,7 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
         } catch (e) {
             setPlotText(normalizePlotOutlineOutput(preRefinePlot, { totalChapters: job.totalChapters }));
             updatePlotTokenCount();
-            setPlotStatusView("❌ Error", 'error');
+            setPlotStatusView(`❌ Error: ${e.message || e}`, 'error');
             setNovelStatus(`[Batch] Plot Refine Error: ${e.message || e}`);
             showToast(`[Batch] Plot refine failed: ${e.message || e}`, 'error');
             runtimeSessionState.stopRequested = true;
@@ -618,10 +637,12 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
         if (runtimeSessionState.stopRequested) {
             setPlotText(normalizePlotOutlineOutput(preRefinePlot, { totalChapters: job.totalChapters }));
             updatePlotTokenCount();
+            setPlotStatusView("🛑 Stopped", 'cancelled');
             // Reset plot refinement progress so it starts over on resume if restored to original
             job.lastRefinedPlotPart = 0;
         } else {
             job.plotRefineFinished = true;
+            setPlotStatusView("✅ Done", 'completed');
         }
     }
 
@@ -630,6 +651,7 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
     plotOutline = normalizePlotOutlineOutput(plotOutline, { totalChapters: job.totalChapters });
     setPlotText(plotOutline);
     updatePlotTokenCount();
+    setPlotStatusView("✅ Done", 'completed');
 
     try {
         assertCompletePlotOutline(plotOutline, job.totalChapters, 'Plot outline before novel generation');
