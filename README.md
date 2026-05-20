@@ -28,7 +28,7 @@ Enter a seed, generate or refine a plot, and let the app produce a full chapter-
   - Manually sculpt your story by creating and editing chapter-by-chapter plot to your exact specifications.
   - Add highly specific custom refine instructions to control pacing, tone, relationships, conflict, expansion targets, or details to preserve.
   - Automatically generate professional plot improvement ideas using the **✨ Auto Instructions** feature when you need inspiration.
-  - Target plot refinement by story part with optional **Start Part** and **End Part** fields, including multi-part Auto Instructions.
+  - Target plot refinement by story part with optional **Start Part** and **End Part** fields, including multi-part Auto Instructions. (Start Part: 0 for settings)
   - Refine long plots in structured chunks, starting with setup sections and progressing through each story part in order.
   - For long outlines of **13 chapters or more**, generate plots in stages: setup sections first, then each story part in sequence.
   - Monitor estimated plot token usage with a CJK-aware counter.
@@ -126,7 +126,7 @@ This mode allows you to refine the story's direction before final generation.
 2.  **Generate Plot**: Click **Generate Plot**. The AI will create a chapter-by-chapter summary. For **13 chapters or more**, plot generation is split into setup sections (1-4) and then each story part, reducing omissions in long outlines.
 3.  **Refine Plot (Optional)**: Click **✨ Auto Instructions** to have the AI automatically review your plot and suggest 5-10 specific improvement points, or manually add your own guidance in **Plot Refine Instructions**. Then click **✨ Refine**. The AI first rewrites the setup sections, then refines each story part in order using the revised setup, already-refined earlier parts, and the remaining original chapter outline as boundary/context.
     - Use **Start Part** and/or **End Part** to refine only part of the plot.
-    - Start only: refines from that part through the end.
+    - Start only: refines from that part through the end. (Start Part: 0 for settings)
     - End only: refines from Part 1 through that part.
     - Same Start and End: refines only that part.
     - **✨ Auto Instructions** supports both single-part and multi-part ranges. When a range is selected, it analyzes the selected parts with adjacent boundary parts as continuity context.
