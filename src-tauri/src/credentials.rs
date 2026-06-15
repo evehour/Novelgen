@@ -1,9 +1,15 @@
 const CREDENTIAL_TARGET: &str = "NovelGen.GoogleApiKey";
 const CREDENTIAL_USERNAME: &str = "Google API Key";
 
+const OLLAMA_CREDENTIAL_TARGET: &str = "NovelGen.OllamaCloudApiKey";
+const OLLAMA_CREDENTIAL_USERNAME: &str = "Ollama Cloud API Key";
+
 #[cfg(windows)]
 mod platform {
-    use super::{CREDENTIAL_TARGET, CREDENTIAL_USERNAME};
+    use super::{
+        CREDENTIAL_TARGET, CREDENTIAL_USERNAME, OLLAMA_CREDENTIAL_TARGET,
+        OLLAMA_CREDENTIAL_USERNAME,
+    };
     use std::ffi::c_void;
     use std::ptr::{null_mut, NonNull};
     use std::slice;
@@ -89,8 +95,8 @@ mod platform {
         }
     }
 
-    pub fn read_google_api_key() -> Result<Option<String>, String> {
-        let target = wide_null(CREDENTIAL_TARGET);
+    fn read_credential(target_name: &str) -> Result<Option<String>, String> {
+        let target = wide_null(target_name);
         let mut credential_ptr: *mut CREDENTIALW = null_mut();
 
         let ok = unsafe { CredReadW(target.as_ptr(), CRED_TYPE_GENERIC, 0, &mut credential_ptr) };
@@ -134,15 +140,15 @@ mod platform {
         result
     }
 
-    pub fn write_google_api_key(api_key: &str) -> Result<(), String> {
-        let mut blob = api_key.as_bytes().to_vec();
+    fn write_credential(target_name: &str, username: &str, secret: &str) -> Result<(), String> {
+        let mut blob = secret.as_bytes().to_vec();
         if blob.len() > CRED_MAX_CREDENTIAL_BLOB_SIZE {
             blob.fill(0);
-            return Err("Google API key is too large for Windows Credential Manager.".to_string());
+            return Err("Secret is too large for Windows Credential Manager.".to_string());
         }
 
-        let target = wide_null(CREDENTIAL_TARGET);
-        let username = wide_null(CREDENTIAL_USERNAME);
+        let target = wide_null(target_name);
+        let username_wide = wide_null(username);
         let credential = CREDENTIALW {
             Flags: 0,
             Type: CRED_TYPE_GENERIC,
@@ -158,7 +164,7 @@ mod platform {
             AttributeCount: 0,
             Attributes: null_mut(),
             TargetAlias: null_mut(),
-            UserName: username.as_ptr() as *mut u16,
+            UserName: username_wide.as_ptr() as *mut u16,
         };
 
         let ok = unsafe { CredWriteW(&credential, 0) };
@@ -171,8 +177,8 @@ mod platform {
         }
     }
 
-    pub fn delete_google_api_key() -> Result<(), String> {
-        let target = wide_null(CREDENTIAL_TARGET);
+    fn delete_credential(target_name: &str) -> Result<(), String> {
+        let target = wide_null(target_name);
         let ok = unsafe { CredDeleteW(target.as_ptr(), CRED_TYPE_GENERIC, 0) };
 
         if ok == 0 && last_os_error_code() != Some(ERROR_NOT_FOUND) {
@@ -180,6 +186,30 @@ mod platform {
         } else {
             Ok(())
         }
+    }
+
+    pub fn read_google_api_key() -> Result<Option<String>, String> {
+        read_credential(CREDENTIAL_TARGET)
+    }
+
+    pub fn write_google_api_key(api_key: &str) -> Result<(), String> {
+        write_credential(CREDENTIAL_TARGET, CREDENTIAL_USERNAME, api_key)
+    }
+
+    pub fn delete_google_api_key() -> Result<(), String> {
+        delete_credential(CREDENTIAL_TARGET)
+    }
+
+    pub fn read_ollama_cloud_api_key() -> Result<Option<String>, String> {
+        read_credential(OLLAMA_CREDENTIAL_TARGET)
+    }
+
+    pub fn write_ollama_cloud_api_key(api_key: &str) -> Result<(), String> {
+        write_credential(OLLAMA_CREDENTIAL_TARGET, OLLAMA_CREDENTIAL_USERNAME, api_key)
+    }
+
+    pub fn delete_ollama_cloud_api_key() -> Result<(), String> {
+        delete_credential(OLLAMA_CREDENTIAL_TARGET)
     }
 }
 
@@ -196,6 +226,21 @@ mod platform {
     pub fn delete_google_api_key() -> Result<(), String> {
         Ok(())
     }
+
+    pub fn read_ollama_cloud_api_key() -> Result<Option<String>, String> {
+        Ok(None)
+    }
+
+    pub fn write_ollama_cloud_api_key(_api_key: &str) -> Result<(), String> {
+        Ok(())
+    }
+
+    pub fn delete_ollama_cloud_api_key() -> Result<(), String> {
+        Ok(())
+    }
 }
 
-pub use platform::{delete_google_api_key, read_google_api_key, write_google_api_key};
+pub use platform::{
+    delete_google_api_key, delete_ollama_cloud_api_key, read_google_api_key,
+    read_ollama_cloud_api_key, write_google_api_key, write_ollama_cloud_api_key,
+};

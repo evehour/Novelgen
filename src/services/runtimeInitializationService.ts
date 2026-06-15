@@ -39,9 +39,21 @@ export async function initializeNovelgenRuntime({
     runtimeViewStateStore.setUiPreferences({ theme: initTheme() });
     await loadSystemPromptPresets();
 
+    const savedSettings = readSavedAppSettings();
+    const savedProvider = savedSettings.provider || 'LM Studio';
+    const savedBase = savedSettings.apiBase;
+    const savedModel = savedSettings.model;
+
+    if (savedSettings.provider) {
+        runtimeViewStateStore.setApiSettings({ provider: savedSettings.provider });
+    }
+
     try {
-        console.log('[Frontend] Requesting API key load...');
-        const key = await loadApiKey();
+        console.log('[Frontend] Requesting API key load for provider:', savedProvider);
+        let key = '';
+        if (savedProvider === 'Google' || savedProvider === 'Ollama Cloud') {
+            key = await loadApiKey(savedProvider);
+        }
         if (key) {
             console.log('[Frontend] API Key loaded from disk.');
             runtimeViewStateStore.setApiSettings({ apiKey: key });
@@ -52,20 +64,11 @@ export async function initializeNovelgenRuntime({
         console.error('[Frontend] API Key load failed:', e);
     }
 
-    const savedSettings = readSavedAppSettings();
-    const savedProvider = savedSettings.provider;
-    const savedBase = savedSettings.apiBase;
-    const savedModel = savedSettings.model;
-
-    if (savedProvider) {
-        runtimeViewStateStore.setApiSettings({ provider: savedProvider });
-    }
-
     await setProviderUI(true, { persistSettings: false });
 
     if (savedBase) runtimeViewStateStore.setApiSettings({ apiBase: savedBase });
 
-    if (getProvider() === 'LM Studio') {
+    if (savedProvider === 'LM Studio' || savedProvider === 'Ollama' || savedProvider === 'Ollama Cloud') {
         await refreshModels();
     }
 
@@ -77,8 +80,10 @@ export async function initializeNovelgenRuntime({
                 ? modelOptions
                 : [...modelOptions, savedModel],
         });
-    } else if (getProvider() === 'LM Studio') {
+    } else if (savedProvider === 'LM Studio') {
         runtimeViewStateStore.setApiSettings({ modelName: DEFAULT_LM_STUDIO_MODEL });
+    } else if (savedProvider === 'Ollama' || savedProvider === 'Ollama Cloud') {
+        runtimeViewStateStore.setApiSettings({ modelName: '' });
     }
 
     runtimeViewStateStore.setBatchSettings(savedSettings.batch);

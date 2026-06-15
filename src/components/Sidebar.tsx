@@ -1,6 +1,7 @@
 import { useState, type CSSProperties, type Ref } from 'react';
 import { useTextFileDropTarget } from '../hooks/useTextFileDropTarget.js';
 import type {
+    ApiProvider,
     ApiSettingsViewState,
     BatchSettingsSnapshot,
     GenerationParamsViewState,
@@ -25,29 +26,19 @@ function ApiSettingsCard({
         <div className="card settings-group">
             <h2>🛠️ API SETTINGS</h2>
 
-            <div className="input-group provider-toggle">
-                <label>Provider</label>
-                <div className="segmented-control">
-                    <input
-                        type="radio"
-                        id="prov-lmstudio"
-                        name="provider"
-                        value="LM Studio"
-                        checked={apiSettings.provider === 'LM Studio'}
-                        onChange={() => actions.onProviderChange('LM Studio')}
-                    />
-                    <label htmlFor="prov-lmstudio">LM Studio</label>
-
-                    <input
-                        type="radio"
-                        id="prov-google"
-                        name="provider"
-                        value="Google"
-                        checked={apiSettings.provider === 'Google'}
-                        onChange={() => actions.onProviderChange('Google')}
-                    />
-                    <label htmlFor="prov-google">Google</label>
-                </div>
+            <div className="input-group">
+                <label htmlFor="api-provider">Provider</label>
+                <select
+                    id="api-provider"
+                    className="inputbox"
+                    value={apiSettings.provider}
+                    onChange={event => actions.onProviderChange(event.currentTarget.value as ApiProvider)}
+                >
+                    <option value="LM Studio">LM Studio</option>
+                    <option value="Google">Google</option>
+                    <option value="Ollama">Ollama</option>
+                    <option value="Ollama Cloud">Ollama Cloud</option>
+                </select>
             </div>
 
             <div className="input-group">
@@ -61,7 +52,9 @@ function ApiSettingsCard({
             </div>
 
             <div className="input-group" id="group-api-key" style={apiSettings.showApiKey ? undefined : hiddenGroupStyle}>
-                <label htmlFor="api-key">Google API Key</label>
+                <label htmlFor="api-key">
+                    {apiSettings.provider === 'Google' ? 'Google API Key' : 'Ollama Cloud API Key'}
+                </label>
                 <input
                     id="api-key"
                     type="password"

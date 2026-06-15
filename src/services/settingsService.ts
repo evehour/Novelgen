@@ -3,6 +3,8 @@ import type { ApiProvider, ApiSettingsSnapshot, BatchSettingsSnapshot, SavedAppS
 export const DEFAULT_LM_STUDIO_BASE = 'http://localhost:1234/v1';
 export const DEFAULT_LM_STUDIO_MODEL = 'unsloth/gemma-4-31b-it';
 export const DEFAULT_GOOGLE_MODEL = 'gemini-flash-lite-latest';
+export const DEFAULT_OLLAMA_BASE = 'http://localhost:11434/v1';
+export const DEFAULT_OLLAMA_CLOUD_BASE = 'https://ollama.com/v1';
 
 export const GOOGLE_MODELS = [
     DEFAULT_GOOGLE_MODEL,
@@ -21,7 +23,7 @@ const DEFAULT_BATCH_SETTINGS: BatchSettingsSnapshot = {
 };
 
 export function asApiProvider(value: string | null | undefined): ApiProvider | null {
-    return value === 'LM Studio' || value === 'Google' ? value : null;
+    return value === 'LM Studio' || value === 'Google' || value === 'Ollama' || value === 'Ollama Cloud' ? value : null;
 }
 
 function readBoolean(key: string): boolean {
@@ -52,6 +54,10 @@ export function readSavedAppSettings(): SavedAppSettings {
         lmStudioBase: localStorage.getItem('api-base-lmstudio'),
         lmStudioModel: localStorage.getItem('api-model-lmstudio'),
         googleModel: localStorage.getItem('api-model-google'),
+        ollamaBase: localStorage.getItem('api-base-ollama'),
+        ollamaModel: localStorage.getItem('api-model-ollama'),
+        ollamaCloudBase: localStorage.getItem('api-base-ollamacloud'),
+        ollamaCloudModel: localStorage.getItem('api-model-ollamacloud'),
         batch: readBatchSettings(),
     };
 }
@@ -64,8 +70,14 @@ export function saveApiSettings(settings: ApiSettingsSnapshot) {
     if (settings.provider === 'LM Studio') {
         localStorage.setItem('api-base-lmstudio', settings.apiBase);
         localStorage.setItem('api-model-lmstudio', settings.modelName);
-    } else {
+    } else if (settings.provider === 'Google') {
         localStorage.setItem('api-model-google', settings.modelName);
+    } else if (settings.provider === 'Ollama') {
+        localStorage.setItem('api-base-ollama', settings.apiBase);
+        localStorage.setItem('api-model-ollama', settings.modelName);
+    } else if (settings.provider === 'Ollama Cloud') {
+        localStorage.setItem('api-base-ollamacloud', settings.apiBase);
+        localStorage.setItem('api-model-ollamacloud', settings.modelName);
     }
 }
 
@@ -78,13 +90,27 @@ export function saveBatchSettings(settings: BatchSettingsSnapshot = DEFAULT_BATC
 }
 
 export function getProviderBase(provider: ApiProvider, saved: SavedAppSettings): string {
-    return provider === 'Google'
-        ? 'https://generativelanguage.googleapis.com/v1beta/openai/'
-        : saved.lmStudioBase || DEFAULT_LM_STUDIO_BASE;
+    if (provider === 'Google') {
+        return 'https://generativelanguage.googleapis.com/v1beta/openai/';
+    }
+    if (provider === 'Ollama') {
+        return saved.ollamaBase || DEFAULT_OLLAMA_BASE;
+    }
+    if (provider === 'Ollama Cloud') {
+        return saved.ollamaCloudBase || DEFAULT_OLLAMA_CLOUD_BASE;
+    }
+    return saved.lmStudioBase || DEFAULT_LM_STUDIO_BASE;
 }
 
 export function getProviderModel(provider: ApiProvider, saved: SavedAppSettings): string {
-    return provider === 'Google'
-        ? saved.googleModel || DEFAULT_GOOGLE_MODEL
-        : saved.lmStudioModel || '';
+    if (provider === 'Google') {
+        return saved.googleModel || DEFAULT_GOOGLE_MODEL;
+    }
+    if (provider === 'Ollama') {
+        return saved.ollamaModel || '';
+    }
+    if (provider === 'Ollama Cloud') {
+        return saved.ollamaCloudModel || '';
+    }
+    return saved.lmStudioModel || '';
 }

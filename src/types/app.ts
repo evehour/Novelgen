@@ -1,4 +1,4 @@
-export type ApiProvider = 'LM Studio' | 'Google';
+export type ApiProvider = 'LM Studio' | 'Google' | 'Ollama' | 'Ollama Cloud';
 export type Language = 'Korean' | 'Japanese' | 'English';
 export type ThemeMode = 'light' | 'dark';
 export type TextDropTarget = 'systemPrompt' | 'seed' | 'plot' | 'novel';
@@ -35,6 +35,10 @@ export interface SavedAppSettings {
     lmStudioBase: string | null;
     lmStudioModel: string | null;
     googleModel: string | null;
+    ollamaBase: string | null;
+    ollamaModel: string | null;
+    ollamaCloudBase: string | null;
+    ollamaCloudModel: string | null;
     batch: BatchSettingsSnapshot;
 }
 

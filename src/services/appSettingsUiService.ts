@@ -1,7 +1,7 @@
 import { showToast } from '../modules/toast.js';
 import { saveUiSettings } from '../modules/ui_preferences.js';
 import type { ApiProvider } from '../types/app.js';
-import { saveApiKey } from './credentialService.js';
+import { loadApiKey, saveApiKey } from './credentialService.js';
 import { fetchModelNames } from './modelService.js';
 import {
     DEFAULT_LM_STUDIO_MODEL_OPTIONS,
@@ -57,13 +57,15 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
 
     async function persistGoogleApiKey() {
         try {
-            const savedKey = await saveApiKey(getApiSettings().apiKey);
+            const provider = getProvider();
+            if (provider !== 'Google' && provider !== 'Ollama Cloud') return;
+            const savedKey = await saveApiKey(provider, getApiSettings().apiKey);
             runtimeViewStateStore.setApiSettings({ apiKey: savedKey });
 
             if (savedKey) {
-                showToast('Google API Key saved to Windows Credential Manager.', 'success');
+                showToast(`${provider} API Key saved to Windows Credential Manager.`, 'success');
             } else {
-                showToast('Google API Key removed from Windows Credential Manager.', 'info');
+                showToast(`${provider} API Key removed from Windows Credential Manager.`, 'info');
             }
         } catch (e) {
             console.error('[Frontend] API Key save failed:', e);
@@ -79,8 +81,8 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
                 isRefreshingModels: true,
             });
 
-            const { apiBase, modelName: currentModel } = getApiSettings();
-            const models = await fetchModelNames(apiBase);
+            const { apiBase, apiKey, modelName: currentModel } = getApiSettings();
+            const models = await fetchModelNames(apiBase, apiKey);
 
             if (models && models.length > 0) {
                 runtimeViewStateStore.setApiSettings({
@@ -117,18 +119,49 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
             console.log('[Frontend] Setting Provider UI for:', provider);
             const savedSettings = readSavedAppSettings();
 
+            let loadedKey = '';
+            if (provider === 'Google' || provider === 'Ollama Cloud') {
+                loadedKey = await loadApiKey(provider);
+            }
+
             if (provider === 'Google') {
                 runtimeViewStateStore.setApiSettings({
+                    provider,
                     apiBase: getProviderBase(provider, savedSettings),
+                    apiKey: loadedKey,
                     showApiKey: true,
                     modelOptions: GOOGLE_MODELS,
                     modelName: getProviderModel(provider, savedSettings) || DEFAULT_GOOGLE_MODEL,
+                });
+            } else if (provider === 'Ollama Cloud') {
+                const savedOllamaCloudModel = getProviderModel(provider, savedSettings);
+                const modelName = savedOllamaCloudModel || '';
+                runtimeViewStateStore.setApiSettings({
+                    provider,
+                    apiBase: getProviderBase(provider, savedSettings),
+                    apiKey: loadedKey,
+                    showApiKey: true,
+                    modelOptions: modelName ? [modelName] : [],
+                    modelName,
+                });
+            } else if (provider === 'Ollama') {
+                const savedOllamaModel = getProviderModel(provider, savedSettings);
+                const modelName = savedOllamaModel || '';
+                runtimeViewStateStore.setApiSettings({
+                    provider,
+                    apiBase: getProviderBase(provider, savedSettings),
+                    apiKey: '',
+                    showApiKey: false,
+                    modelOptions: modelName ? [modelName] : [],
+                    modelName,
                 });
             } else {
                 const savedLMModel = getProviderModel(provider, savedSettings);
                 const modelName = savedLMModel || DEFAULT_LM_STUDIO_MODEL;
                 runtimeViewStateStore.setApiSettings({
+                    provider,
                     apiBase: getProviderBase(provider, savedSettings),
+                    apiKey: '',
                     showApiKey: false,
                     modelOptions: DEFAULT_LM_STUDIO_MODEL_OPTIONS.includes(modelName)
                         ? DEFAULT_LM_STUDIO_MODEL_OPTIONS
@@ -137,7 +170,7 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
                 });
             }
 
-            if (!skipModelFetch && provider === 'LM Studio') {
+            if (!skipModelFetch && (provider === 'LM Studio' || provider === 'Ollama' || provider === 'Ollama Cloud')) {
                 await refreshModels();
             }
             if (persistSettings) {

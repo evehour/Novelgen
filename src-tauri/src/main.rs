@@ -63,9 +63,10 @@ fn resume_generation(state: State<'_, AppState>) {
 }
 
 #[tauri::command]
-async fn fetch_models(api_base: String) -> Result<Vec<String>, String> {
+async fn fetch_models(api_base: String, api_key: Option<String>) -> Result<Vec<String>, String> {
     println!("[Backend] Fetching models from: {}", api_base);
-    let res = generator::fetch_models_impl(&api_base).await;
+    let key = api_key.unwrap_or_default();
+    let res = generator::fetch_models_impl(&api_base, &key).await;
     match &res {
         Ok(models) => println!("[Backend] Found {} models", models.len()),
         Err(e) => println!("[Backend] Fetch error: {}", e),
@@ -413,38 +414,62 @@ fn load_legacy_gemini_txt_key() -> Result<Option<(PathBuf, String)>, String> {
 }
 
 #[tauri::command]
-fn load_api_key() -> Result<String, String> {
-    if let Some((path, key)) = load_legacy_gemini_txt_key()? {
-        println!(
-            "[Backend] API key loaded from legacy gemini.txt and syncing to Credential Manager: {:?}",
-            path
-        );
-        if let Err(err) = credentials::write_google_api_key(&key) {
-            eprintln!(
-                "[Backend] Failed to sync gemini.txt API key to Credential Manager: {}",
-                err
+fn load_api_key(provider: Option<String>) -> Result<String, String> {
+    let provider = provider.unwrap_or_else(|| "Google".to_string());
+    if provider == "Google" {
+        if let Some((path, key)) = load_legacy_gemini_txt_key()? {
+            println!(
+                "[Backend] API key loaded from legacy gemini.txt and syncing to Credential Manager: {:?}",
+                path
             );
+            if let Err(err) = credentials::write_google_api_key(&key) {
+                eprintln!(
+                    "[Backend] Failed to sync gemini.txt API key to Credential Manager: {}",
+                    err
+                );
+            }
+            return Ok(key);
         }
-        return Ok(key);
-    }
 
-    println!("[Backend] Loading API key from Windows Credential Manager");
-    credentials::read_google_api_key().map(|key| {
-        key.map(|value| normalize_api_key(&value))
-            .unwrap_or_default()
-    })
+        println!("[Backend] Loading Google API key from Windows Credential Manager");
+        credentials::read_google_api_key().map(|key| {
+            key.map(|value| normalize_api_key(&value))
+                .unwrap_or_default()
+        })
+    } else if provider == "Ollama Cloud" {
+        println!("[Backend] Loading Ollama Cloud API key from Windows Credential Manager");
+        credentials::read_ollama_cloud_api_key().map(|key| {
+            key.map(|value| normalize_api_key(&value))
+                .unwrap_or_default()
+        })
+    } else {
+        Ok(String::new())
+    }
 }
 
 #[tauri::command]
-fn save_api_key(api_key: String) -> Result<String, String> {
+fn save_api_key(provider: Option<String>, api_key: String) -> Result<String, String> {
+    let provider = provider.unwrap_or_else(|| "Google".to_string());
     let key = normalize_api_key(&api_key);
 
-    if key.is_empty() {
-        credentials::delete_google_api_key()?;
-        Ok(String::new())
+    if provider == "Google" {
+        if key.is_empty() {
+            credentials::delete_google_api_key()?;
+            Ok(String::new())
+        } else {
+            credentials::write_google_api_key(&key)?;
+            Ok(key)
+        }
+    } else if provider == "Ollama Cloud" {
+        if key.is_empty() {
+            credentials::delete_ollama_cloud_api_key()?;
+            Ok(String::new())
+        } else {
+            credentials::write_ollama_cloud_api_key(&key)?;
+            Ok(key)
+        }
     } else {
-        credentials::write_google_api_key(&key)?;
-        Ok(key)
+        Ok(String::new())
     }
 }
 

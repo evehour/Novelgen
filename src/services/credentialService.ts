@@ -8,10 +8,10 @@ export function normalizeApiKey(value: unknown): string {
     return key;
 }
 
-export async function loadApiKey(): Promise<string> {
-    return await invoke<string>('load_api_key');
+export async function loadApiKey(provider?: string): Promise<string> {
+    return await invoke<string>('load_api_key', { provider: provider || 'Google' });
 }
 
-export async function saveApiKey(value: unknown): Promise<string> {
-    return await invoke<string>('save_api_key', { apiKey: normalizeApiKey(value) });
+export async function saveApiKey(provider: string, value: unknown): Promise<string> {
+    return await invoke<string>('save_api_key', { provider, apiKey: normalizeApiKey(value) });
 }

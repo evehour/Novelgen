@@ -107,8 +107,9 @@ export function createPlotActions({
     function generatePlotOutline() {
         const seed = getEditorSnapshot().seed;
         const { apiKey } = runtimeViewStateStore.getSnapshot().apiSettings;
-        if (getProvider() === 'Google' && !apiKey.trim()) {
-            showToast('Please enter a Google API Key in the sidebar.', 'warning');
+        const provider = getProvider();
+        if ((provider === 'Google' || provider === 'Ollama Cloud') && !apiKey.trim()) {
+            showToast(`Please enter a ${provider} API Key in the sidebar.`, 'warning');
             return;
         }
         if (!seed.trim()) {

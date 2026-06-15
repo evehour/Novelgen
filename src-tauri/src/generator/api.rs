@@ -73,7 +73,7 @@ pub const GOOGLE_MODELS: &[&str] = &[
     "gemma-4-31b-it",
 ];
 
-pub async fn fetch_models_impl(api_base: &str) -> Result<Vec<String>, String> {
+pub async fn fetch_models_impl(api_base: &str, api_key: &str) -> Result<Vec<String>, String> {
     let client = Client::builder()
         .timeout(Duration::from_secs(5))
         .build()
@@ -90,7 +90,12 @@ pub async fn fetch_models_impl(api_base: &str) -> Result<Vec<String>, String> {
         LM_STUDIO_MODELS.iter().map(|&s| s.to_string()).collect()
     };
 
-    match client.get(&url).send().await {
+    let mut request = client.get(&url);
+    if !api_key.is_empty() {
+        request = request.bearer_auth(api_key);
+    }
+
+    match request.send().await {
         Ok(res) => {
             if res.status().is_success() {
                 if let Ok(model_list) = res.json::<ModelList>().await {
