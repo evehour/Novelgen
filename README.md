@@ -12,7 +12,7 @@ Enter a seed, generate or refine a plot, and let the app produce a full chapter-
 
 - **Desktop AI Story Generating Environment**
   - Standalone Rust/Tauri app with no dependencies (except for Edge WebView2 runtime which is included in Windows).
-  - Supports local generation through **LM Studio** and cloud generation through **Google Gemini API**.
+  - Supports local generation through **LM Studio** and **Ollama**, and cloud generation through **Google Gemini API** and **Ollama Cloud**.
   - Generates stories in **Korean**, **Japanese**, or **English**.
 
 - **Hands-Off Novel Creation**
@@ -71,6 +71,8 @@ You can download the latest version from the [Releases Page](https://github.com/
 3. **AI Provider**:
    - **LM Studio**: Local server running on port `1234`.
    - **Google Gemini**: A valid API key (stored securely in **Windows Credential Manager**).
+   - **Ollama**: Local server (default port `11434`).
+   - **Ollama Cloud**: A cloud-hosted Ollama instance requiring an API key (stored securely in **Windows Credential Manager**).
   - *Legacy Support*: If a `gemini.txt` file exists in the app directory, it will be automatically migrated to the Credential Manager on launch.
 
 ### Installation (Development)
@@ -113,6 +115,8 @@ To run the application (without building from source), ensure the following are 
 One of the following providers must be accessible:
 - **LM Studio**: Must be running a local server on port `1234`.
 - **Google Gemini API**: A valid API Key (stored securely in Windows Credential Manager) and active internet connection.
+- **Ollama**: Must be running a local server (default port `11434`).
+- **Ollama Cloud**: A valid API Key (stored securely in Windows Credential Manager) and active internet connection.
 
 ---
 
