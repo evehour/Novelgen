@@ -1051,8 +1051,11 @@ pub async fn generate_novel_stream(
                                     }
                                 } else if let Some(content) = delta["content"].as_str() {
                                     if !content.is_empty() {
-                                        if in_thinking {
-                                            chapter_text.push_str("\n</think>\n");
+                                        // Detect inline <think> tags (Qwen3, GLM, etc.)
+                                        if content.contains("<think>") && !in_thinking {
+                                            in_thinking = true;
+                                        }
+                                        if in_thinking && content.contains("</think>") {
                                             in_thinking = false;
                                             // Immediately notify UI that thinking is done
                                             let _ = on_event.send(StreamEvent::chapter_preview(
@@ -1062,7 +1065,15 @@ pub async fn generate_novel_stream(
                                         }
                                         chapter_text.push_str(content);
                                         count += 1;
-                                        if count % 5 == 0 {
+                                        if in_thinking {
+                                            thinking_tokens += 1;
+                                            if count % 5 == 0 {
+                                                let _ = on_event.send(StreamEvent::chapter_preview(
+                                                    clean_thought_tags(&chapter_text),
+                                                    format!("💭 Thinking...({} tokens) Writing...({}/{})", thinking_tokens, ch, params.total_chapters),
+                                                ));
+                                            }
+                                        } else if count % 5 == 0 {
                                             let _ = on_event.send(StreamEvent::chapter_preview(
                                                 clean_thought_tags(&chapter_text),
                                                 format!("✍️ Writing...({}/{})", ch, params.total_chapters),
@@ -1402,8 +1413,11 @@ pub async fn generate_plot_stream(
                         }
                     } else if let Some(content) = delta["content"].as_str() {
                         if !content.is_empty() {
-                            if in_thinking {
-                                full_text.push_str("\n</think>\n");
+                            // Detect inline <think> tags (Qwen3, GLM, etc.)
+                            if content.contains("<think>") && !in_thinking {
+                                in_thinking = true;
+                            }
+                            if in_thinking && content.contains("</think>") {
                                 in_thinking = false;
                                 // Immediately notify UI that thinking is done
                                 let _ = on_event.send(StreamEvent::full(
@@ -1415,7 +1429,17 @@ pub async fn generate_plot_stream(
                             }
                             full_text.push_str(content);
                             count += 1;
-                            if count % 5 == 0 {
+                            if in_thinking {
+                                thinking_tokens += 1;
+                                if count % 5 == 0 {
+                                    let _ = on_event.send(StreamEvent::full(
+                                        clean_thought_tags(&full_text),
+                                        false,
+                                        None,
+                                        Some(format!("💭 Thinking...({} tokens)", thinking_tokens)),
+                                    ));
+                                }
+                            } else if count % 5 == 0 {
                                 let _ = on_event.send(StreamEvent::full(
                                     clean_thought_tags(&full_text),
                                     false,

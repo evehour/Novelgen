@@ -528,6 +528,10 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
                         plotError = ev.error;
                         setPlotStatusView('❌ Error', 'error');
                     }
+                    if (!ev.is_finished && !ev.error && ev.status) {
+                        setPlotStatusView(ev.status, 'generating');
+                        setNovelStatus(`[Batch] ${ev.status}`);
+                    }
                     plotOutline = ev.content;
                     setPlotText(plotOutline);
                     updatePlotTokenCount();
