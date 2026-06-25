@@ -12,7 +12,7 @@ Enter a seed, generate or refine a plot, and let the app produce a full chapter-
 
 - **Desktop AI Story Generating Environment**
   - Standalone Rust/Tauri app with no dependencies (except for Edge WebView2 runtime which is included in Windows).
-  - Supports local generation through **LM Studio** and **Ollama**, and cloud generation through **Google Gemini API** and **Ollama Cloud**.
+   - Supports local generation through **LM Studio** and **Ollama**, and cloud generation through **Google Gemini API**, **Ollama Cloud**, **OpenCode Go**, and **OpenCode Zen**.
   - Generates stories in **Korean**, **Japanese**, or **English**.
 
 - **Hands-Off Novel Creation**
@@ -64,18 +64,12 @@ Enter a seed, generate or refine a plot, and let the app produce a full chapter-
 You can download the latest version from the [Releases Page](https://github.com/kirinonakar/Novelgen/releases).
 
 ### Manual build
-### Prerequisites
+#### Prerequisites
 
 1. **[Node.js](https://nodejs.org/)** (v18 or higher)
 2. **[Rust](https://www.rust-lang.org/tools/install)** & Cargo (Required for building from source)
-3. **AI Provider**:
-   - **LM Studio**: Local server running on port `1234`.
-   - **Google Gemini**: A valid API key (stored securely in **Windows Credential Manager**).
-   - **Ollama**: Local server (default port `11434`).
-   - **Ollama Cloud**: A cloud-hosted Ollama instance requiring an API key (stored securely in **Windows Credential Manager**).
-  - *Legacy Support*: If a `gemini.txt` file exists in the app directory, it will be automatically migrated to the Credential Manager on launch.
 
-### Installation (Development)
+#### Installation (Development)
 
 1. Clone or download this project folder.
 2. Navigate to the project directory:
@@ -91,7 +85,7 @@ You can download the latest version from the [Releases Page](https://github.com/
    npm run tauri dev
    ```
 
-### Build Standalone Executable
+#### Build Standalone Executable
 
 To package the app into a single native installer or executable:
 ```bash
@@ -111,13 +105,10 @@ To run the application (without building from source), ensure the following are 
   - Windows 10: Usually pre-installed via Edge updates.
   - If the app fails to launch, download and install it from [Microsoft's official site](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 
-### AI Backend (Required for generation)
-One of the following providers must be accessible:
-- **LM Studio**: Must be running a local server on port `1234`.
-- **Google Gemini API**: A valid API Key (stored securely in Windows Credential Manager) and active internet connection.
-- **Ollama**: Must be running a local server (default port `11434`).
-- **Ollama Cloud**: A valid API Key (stored securely in Windows Credential Manager) and active internet connection.
-
+### **AI Provider**:
+- **Local**: **LM Studio** (port `1234`), **Ollama** (default port `11434`)
+- **Cloud**: **Google Gemini**, **Ollama Cloud**, **OpenCode Go**, **OpenCode Zen** (API key required, stored securely in Windows Credential Manager)
+   
 ---
 
 ## 📖 Narrative Generation Workflows
