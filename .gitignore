@@ -28,3 +28,23 @@ app.py
 output/
 target-codex-check/
 target*
+
+# oh-my-agent runtime (local artifacts — do not commit)
+.antigravitycli/
+.agents/results/
+.agents/state/
+.agents/backup/
+.migration-backup/
+
+.agents/
+.claude/
+.codex/
+.cursor/
+.github/
+.grok/
+.qwen/
+.serena/
+.zcode/
+.mcp.json
+AGENTS.md
+CLAUDE.md
