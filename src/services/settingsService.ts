@@ -104,7 +104,6 @@ export function saveApiSettings(settings: ApiSettingsSnapshot) {
     localStorage.setItem('api-provider', settings.provider);
     localStorage.setItem('api-base', settings.apiBase);
     localStorage.setItem('api-model', settings.modelName);
-
     if (settings.provider === 'LM Studio') {
         localStorage.setItem('api-base-lmstudio', settings.apiBase);
         localStorage.setItem('api-model-lmstudio', settings.modelName);
@@ -131,6 +130,28 @@ export function saveBatchSettings(settings: BatchSettingsSnapshot = DEFAULT_BATC
     localStorage.setItem('batch-auto-refine-plot-instructions', String(settings.autoRefinePlotInstructions));
     localStorage.setItem('batch-auto-refine-novel', String(settings.autoRefineNovel));
     localStorage.setItem('batch-auto-refine-novel-instructions', String(settings.autoRefineNovelInstructions));
+}
+
+export function readGenerationMaxTokens(): string {
+    return localStorage.getItem('generation-max-tokens') || '204800';
+}
+
+export function readRefineMaxTokens(): string {
+    return localStorage.getItem('refine-max-tokens') || '32768';
+}
+
+export function readAutoInstructionMaxTokens(): string {
+    return localStorage.getItem('auto-instruction-max-tokens') || '4096';
+}
+
+export function saveGenerationParamsSettings(settings: {
+    generationMaxTokens: string;
+    refineMaxTokens: string;
+    autoInstructionMaxTokens: string;
+}) {
+    localStorage.setItem('generation-max-tokens', settings.generationMaxTokens);
+    localStorage.setItem('refine-max-tokens', settings.refineMaxTokens);
+    localStorage.setItem('auto-instruction-max-tokens', settings.autoInstructionMaxTokens);
 }
 
 export function getProviderBase(provider: ApiProvider, saved: SavedAppSettings): string {

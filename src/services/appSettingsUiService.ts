@@ -18,6 +18,7 @@ import {
     readSavedAppSettings,
     saveApiSettings,
     saveBatchSettings,
+    saveGenerationParamsSettings,
 } from './settingsService.js';
 
 interface AppSettingsControllerOptions {
@@ -107,11 +108,9 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
     async function saveSettings() {
         console.log('[Frontend] Saving settings...');
         const { apiBase, modelName, provider } = getApiSettings();
-        saveApiSettings({
-            provider,
-            apiBase,
-            modelName,
-        });
+        saveApiSettings({ provider, apiBase, modelName });
+        const { generationMaxTokens, refineMaxTokens, autoInstructionMaxTokens } = runtimeViewStateStore.getSnapshot().generationParams;
+        saveGenerationParamsSettings({ generationMaxTokens, refineMaxTokens, autoInstructionMaxTokens });
         saveUiSettings(runtimeViewStateStore.getSnapshot().typography);
         saveBatchSettings(runtimeViewStateStore.getSnapshot().batchSettings);
     }

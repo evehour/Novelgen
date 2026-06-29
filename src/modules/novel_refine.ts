@@ -23,7 +23,7 @@ const ORIGINAL_ENDING_CONTEXT_CHARS = 3200;
 const CONTINUATION_TAIL_CHARS = 5200;
 const MIN_REFINED_LENGTH_RATIO = 0.72;
 const MAX_CONTINUATION_ATTEMPTS = 2;
-const MAX_REFINE_OUTPUT_TOKENS = 32768;
+
 
 function normalizeDigits(value) {
     return String(value || '').replace(/[０-９]/g, ch =>
@@ -559,11 +559,15 @@ function withApiHint(message) {
     return msg;
 }
 
+function getRefineMaxTokens() {
+    return parseInt(runtimeViewStateStore.getSnapshot().generationParams.refineMaxTokens);
+}
+
 function maxTokensForChapter(chapterBody, targetTokens) {
     const chapterTokens = estimateTokenCount(chapterBody);
     const target = parseInt(targetTokens, 10) || 2000;
     return Math.min(
-        MAX_REFINE_OUTPUT_TOKENS,
+        getRefineMaxTokens(),
         Math.max(4096, Math.ceil(chapterTokens * 3.2), target + 3000),
     );
 }
@@ -572,7 +576,7 @@ function maxTokensForContinuation(chapterBody, targetTokens) {
     const chapterTokens = estimateTokenCount(chapterBody);
     const target = parseInt(targetTokens, 10) || 2000;
     return Math.min(
-        Math.ceil(MAX_REFINE_OUTPUT_TOKENS / 2),
+        Math.ceil(getRefineMaxTokens() / 2),
         Math.max(4096, Math.ceil(chapterTokens * 1.2), target + 1800),
     );
 }

@@ -1,4 +1,5 @@
 import { invoke } from './tauri_api.js';
+import { runtimeViewStateStore } from '../services/runtimeViewStateStore.js';
 
 const NOVEL_AUTO_INSTRUCTION_SYSTEM_PROMPT =
     'You are a professional fiction editor specializing in chapter-level refinement.';
@@ -130,7 +131,7 @@ export async function generateInstructionForChapter({
         }),
         temperature: 0.45,
         topP: 0.9,
-        maxTokens: 3000,
+        maxTokens: parseInt(runtimeViewStateStore.getSnapshot().generationParams.autoInstructionMaxTokens),
         repetitionPenalty: 1.1,
     });
 

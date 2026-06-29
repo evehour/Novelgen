@@ -75,6 +75,9 @@ export interface GenerationParamsViewState {
     temperature: string;
     topP: string;
     repetitionPenalty: string;
+    generationMaxTokens: string;
+    refineMaxTokens: string;
+    autoInstructionMaxTokens: string;
 }
 
 export type TypographyScope = 'seed' | 'plot' | 'novel';
@@ -193,6 +196,9 @@ export interface NovelgenRuntimeActions {
     onComfortModeChange: (scope: TypographyScope, comfort: boolean) => void;
     onPlotRefineInstructionsChange: (instructions: string) => void;
     onNovelRefineInstructionsChange: (instructions: string) => void;
+    onGenerationMaxTokensChange: (value: string) => void;
+    onRefineMaxTokensChange: (value: string) => void;
+    onAutoInstructionMaxTokensChange: (value: string) => void;
     onBatchCountChange: (batchCount: string) => void;
     onBatchAutoRefinePlotChange: (enabled: boolean) => void;
     onBatchAutoRefinePlotInstructionsChange: (enabled: boolean) => void;

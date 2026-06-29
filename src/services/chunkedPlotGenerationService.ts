@@ -13,6 +13,7 @@ import {
 import type { Language } from '../types/app.js';
 import { generatePlotStream, type GeneratePlotParams, type PlotStreamEvent } from './plotGenerationService.js';
 import { getPlotSectionHeaders } from './plotPromptService.js';
+import { runtimeViewStateStore } from './runtimeViewStateStore.js';
 
 const CHUNKED_PLOT_MIN_CHAPTERS = 13;
 const MAX_PART_RETRY_COUNT = 3;
@@ -89,7 +90,7 @@ async function generatePlotChunk(
     await generatePlotStream({
         ...apiParams,
         prompt,
-        maxTokens: 8192,
+        maxTokens: parseInt(runtimeViewStateStore.getSnapshot().generationParams.generationMaxTokens),
     }, (event) => {
         if (shouldStop?.() && !event.is_finished && !event.error) return;
         latestContent = event.content || latestContent;

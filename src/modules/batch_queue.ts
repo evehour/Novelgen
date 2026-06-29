@@ -522,7 +522,7 @@ async function runBatchJob(job, { generateNovel, detectNextChapter, updatePlotTo
                 await generatePlotStream({
                     ...apiParams,
                     prompt: plotPrompt,
-                    maxTokens: 8192,
+                    maxTokens: parseInt(runtimeViewStateStore.getSnapshot().generationParams.generationMaxTokens),
                 }, (ev) => {
                     if (ev.error) {
                         plotError = ev.error;

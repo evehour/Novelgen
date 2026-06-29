@@ -233,7 +233,7 @@ export function createPlotActions({
                 temperature: parseFloat(generationParams.temperature),
                 topP: parseFloat(generationParams.topP),
                 repetitionPenalty: parseFloat(generationParams.repetitionPenalty),
-                maxTokens: 8192,
+                maxTokens: parseInt(generationParams.generationMaxTokens),
             }, handlePlotStreamEvent);
         } catch (e) {
             const currentPlot = getEditorSnapshot().plot;

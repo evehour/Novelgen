@@ -220,6 +220,48 @@ function GenerationParamsCard({
                     </div>
                 </div>
             </details>
+
+            <details className="advanced-params">
+                <summary>🎯 Plot &amp; Refine</summary>
+                <div className="collapsible-content">
+                    <div className="auto-flex">
+                        <div className="input-group">
+                            <label htmlFor="generation-max-tokens">Generation</label>
+                            <input
+                                type="number"
+                                id="generation-max-tokens"
+                                className="inputbox"
+                                value={generationParams.generationMaxTokens}
+                                min="1024"
+                                onChange={event => actions.onGenerationMaxTokensChange(event.currentTarget.value)}
+                            />
+                        </div>
+                        <div className="input-group">
+                            <label htmlFor="refine-max-tokens">Refine</label>
+                            <input
+                                type="number"
+                                id="refine-max-tokens"
+                                className="inputbox"
+                                value={generationParams.refineMaxTokens}
+                                min="1024"
+                                onChange={event => actions.onRefineMaxTokensChange(event.currentTarget.value)}
+                            />
+                        </div>
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="auto-instruction-max-tokens">Auto Instructions</label>
+                        <input
+                            type="number"
+                            id="auto-instruction-max-tokens"
+                            className="inputbox"
+                            value={generationParams.autoInstructionMaxTokens}
+                            min="256"
+                            step="256"
+                            onChange={event => actions.onAutoInstructionMaxTokensChange(event.currentTarget.value)}
+                        />
+                    </div>
+                </div>
+            </details>
         </div>
     );
 }

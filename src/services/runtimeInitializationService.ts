@@ -9,6 +9,9 @@ import {
     DEFAULT_ZEN_BASE,
     OPENCODE_GO_MODELS,
     ZEN_MODELS,
+    readAutoInstructionMaxTokens,
+    readGenerationMaxTokens,
+    readRefineMaxTokens,
     readSavedAppSettings,
 } from './settingsService.js';
 import { initializeRuntimeServices } from './runtimeService.js';
@@ -103,6 +106,12 @@ export async function initializeNovelgenRuntime({
     } else if (savedProvider === 'Ollama' || savedProvider === 'Ollama Cloud') {
         runtimeViewStateStore.setApiSettings({ modelName: '' });
     }
+
+    runtimeViewStateStore.setGenerationParams({
+        generationMaxTokens: readGenerationMaxTokens(),
+        refineMaxTokens: readRefineMaxTokens(),
+        autoInstructionMaxTokens: readAutoInstructionMaxTokens(),
+    });
 
     runtimeViewStateStore.setBatchSettings(savedSettings.batch);
 

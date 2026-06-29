@@ -79,6 +79,9 @@ export type RuntimeWorkflowActions = Pick<
     | 'onComfortModeChange'
     | 'onPlotRefineInstructionsChange'
     | 'onNovelRefineInstructionsChange'
+    | 'onGenerationMaxTokensChange'
+    | 'onRefineMaxTokensChange'
+    | 'onAutoInstructionMaxTokensChange'
     | 'onBatchCountChange'
     | 'onBatchAutoRefinePlotChange'
     | 'onBatchAutoRefinePlotInstructionsChange'
@@ -512,6 +515,18 @@ export function createRuntimeWorkflowActions(options: RuntimeWorkflowActionOptio
         },
         onNovelRefineInstructionsChange: (instructions) => {
             runtimeViewStateStore.setRefineInstructions({ novel: instructions });
+            saveSettings();
+        },
+        onGenerationMaxTokensChange: (value) => {
+            runtimeViewStateStore.setGenerationParams({ generationMaxTokens: value });
+            saveSettings();
+        },
+        onRefineMaxTokensChange: (value) => {
+            runtimeViewStateStore.setGenerationParams({ refineMaxTokens: value });
+            saveSettings();
+        },
+        onAutoInstructionMaxTokensChange: (value) => {
+            runtimeViewStateStore.setGenerationParams({ autoInstructionMaxTokens: value });
             saveSettings();
         },
         onBatchCountChange: (batchCount) => {

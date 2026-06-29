@@ -1,5 +1,6 @@
 import { Channel, invoke } from '../modules/tauri_api.js';
 import type { Language } from '../types/app.js';
+import { runtimeViewStateStore } from './runtimeViewStateStore.js';
 
 export interface GenerateSeedParams {
     apiBase: string;
@@ -52,7 +53,7 @@ export async function generatePlotStream(
             temperature: params.temperature,
             top_p: params.topP,
             repetition_penalty: params.repetitionPenalty,
-            max_tokens: params.maxTokens ?? 8192,
+            max_tokens: params.maxTokens ?? parseInt(runtimeViewStateStore.getSnapshot().generationParams.generationMaxTokens),
         },
         onEvent,
     });

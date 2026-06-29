@@ -1,4 +1,5 @@
 import { invoke } from './tauri_api.js';
+import { runtimeViewStateStore } from '../services/runtimeViewStateStore.js';
 
 const PLOT_AUTO_INSTRUCTION_SYSTEM_PROMPT =
     'You are an expert fiction development editor with deep experience in serialized web novels, light novels, and genre fiction (fantasy, romance-thriller, isekai, etc.).';
@@ -83,7 +84,7 @@ export async function generatePlotAutoInstructions({ lang, plotOutline, apiParam
         prompt: buildPlotAutoInstructionPrompt({ lang, plotOutline, scopeDescription }),
         temperature: 0.45,
         topP: 0.9,
-        maxTokens: 4096,
+        maxTokens: parseInt(runtimeViewStateStore.getSnapshot().generationParams.autoInstructionMaxTokens),
         repetitionPenalty: 1.1
     });
 

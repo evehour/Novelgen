@@ -929,7 +929,7 @@ async function generatePlotChunk(prompt, { statusText, onDelta, onStatus = null,
             temperature: parseFloat(generationParams.temperature),
             top_p: parseFloat(generationParams.topP),
             repetition_penalty: parseFloat(generationParams.repetitionPenalty),
-            max_tokens: 8192
+            max_tokens: parseInt(generationParams.generationMaxTokens)
         },
         onEvent
     });

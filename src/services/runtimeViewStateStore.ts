@@ -51,6 +51,9 @@ const initialGenerationParams: GenerationParamsViewState = {
     temperature: '1.0',
     topP: '0.95',
     repetitionPenalty: '1.1',
+    generationMaxTokens: '204800',
+    refineMaxTokens: '32768',
+    autoInstructionMaxTokens: '4096',
 };
 
 const initialTypography: TypographyViewState = {
