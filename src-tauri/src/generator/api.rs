@@ -199,8 +199,8 @@ pub async fn generate_seed_impl(
     body_map.insert("top_p".to_string(), json!(top_p));
     body_map.insert("max_tokens".to_string(), json!(2000));
 
-    if api_base.contains("opencode.ai") && model_name.to_ascii_lowercase().contains("deepseek") {
-        body_map.insert("thinking".to_string(), json!({ "type": "disabled" }));
+    if api_base.contains("opencode.ai") && model_name.to_ascii_lowercase().contains("dhlee") {
+        body_map.insert("thinking".to_string(), json!({ "thinking": false, "type": "disabled" }));
     }
 
     let request_body = Value::Object(body_map);
@@ -279,7 +279,7 @@ pub async fn chat_completion(
         body_map.insert("repetition_penalty".to_string(), json!(repetition_penalty));
     }
 
-    if api_base.contains("opencode.ai") && model_name.to_ascii_lowercase().contains("deepseek") {
+    if api_base.contains("opencode.ai") && model_name.to_ascii_lowercase().contains("dhlee") {
         body_map.insert("thinking".to_string(), json!({ "type": "disabled" }));
     }
 

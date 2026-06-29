@@ -977,7 +977,7 @@ pub async fn generate_novel_stream(
         }
 
         if params.api_base.contains("opencode.ai") && params.model_name.to_ascii_lowercase().contains("deepseek") {
-            body_map.insert("thinking".to_string(), json!({ "type": "disabled" }));
+            body_map.insert("thinking".to_string(), json!({ "thinking": false, "type": "disabled" }));
         }
 
         let request_body = Value::Object(body_map);
@@ -1039,12 +1039,21 @@ pub async fn generate_novel_stream(
                                     terminal_finish_reason = Some(reason);
                                 }
                                 let delta = &json["choices"][0]["delta"];
-                                if let Some(reasoning) = delta["reasoning_content"].as_str() {
-                                    if !in_thinking {
-                                        chapter_text.push_str("<think>\n");
-                                        in_thinking = true;
-                                    }
-                                    chapter_text.push_str(reasoning);
+
+                                // Some APIs that lack true streaming support may return the
+                                // entire response in a single event with "message" instead
+                                // of "delta". Fall back to message.content when delta is
+                                // absent or empty.
+                                let has_delta_content = delta["content"].as_str().is_some_and(|s| !s.is_empty());
+                                let has_reasoning = delta["reasoning_content"].as_str().is_some_and(|s| !s.is_empty());
+                                let msg_content = (!has_delta_content && !has_reasoning)
+                                    .then(|| json["choices"][0]["message"]["content"].as_str())
+                                    .flatten();
+
+                                if let Some(_reasoning) = delta["reasoning_content"].as_str() {
+                                    in_thinking = true;
+                                    /* reasoning not pushed - would mix into visible output */
+
                                     thinking_tokens += 1;
                                     count += 1;
                                     if count % 5 == 0 {
@@ -1053,7 +1062,7 @@ pub async fn generate_novel_stream(
                                             format!("💭 Thinking...({} tokens) Writing...({}/{})", thinking_tokens, ch, params.total_chapters),
                                         ));
                                     }
-                                } else if let Some(content) = delta["content"].as_str() {
+                                } else if let Some(content) = delta["content"].as_str().or(msg_content) {
                                     if !content.is_empty() {
                                         // Detect inline <think> tags (Qwen3, GLM, etc.)
                                         if content.contains("<think>") && !in_thinking {
@@ -1111,10 +1120,6 @@ pub async fn generate_novel_stream(
                             return Ok(generation_result(full_text, &novel_filename, &meta));
                         }
                     }
-                }
-
-                if in_thinking {
-                    chapter_text.push_str("\n</think>\n");
                 }
 
                 // If stopped during stream, rollback full_text
@@ -1353,8 +1358,8 @@ pub async fn generate_plot_stream(
         body_map.insert("repetition_penalty".to_string(), json!(repetition_penalty));
     }
 
-    if api_base.contains("opencode.ai") && model_name.to_ascii_lowercase().contains("deepseek") {
-        body_map.insert("thinking".to_string(), json!({ "type": "disabled" }));
+    if api_base.contains("opencode.ai") && model_name.to_ascii_lowercase().contains("dhlee") {
+        body_map.insert("thinking".to_string(), json!({ "thinking": false, "type": "disabled" }));
     }
 
     let request_body = Value::Object(body_map);
@@ -1403,12 +1408,20 @@ pub async fn generate_plot_stream(
                         terminal_finish_reason = Some(reason);
                     }
                     let delta = &json["choices"][0]["delta"];
-                    if let Some(reasoning) = delta["reasoning_content"].as_str() {
-                        if !in_thinking {
-                            full_text.push_str("<think>\n");
-                            in_thinking = true;
-                        }
-                        full_text.push_str(reasoning);
+
+                    // Some APIs that lack true streaming support may return the
+                    // entire response in a single event with "message" instead
+                    // of "delta". Fall back to message.content when delta is
+                    // absent or empty.
+                    let has_delta_content = delta["content"].as_str().is_some_and(|s| !s.is_empty());
+                    let has_reasoning = delta["reasoning_content"].as_str().is_some_and(|s| !s.is_empty());
+                    let msg_content = (!has_delta_content && !has_reasoning)
+                        .then(|| json["choices"][0]["message"]["content"].as_str())
+                        .flatten();
+
+                    if let Some(_reasoning) = delta["reasoning_content"].as_str() {
+                        in_thinking = true;
+                        /* reasoning not pushed: would mix into visible output */
                         thinking_tokens += 1;
                         count += 1;
                         if count % 5 == 0 {
@@ -1419,7 +1432,7 @@ pub async fn generate_plot_stream(
                                 Some(format!("💭 Thinking...({} tokens)", thinking_tokens)),
                             ));
                         }
-                    } else if let Some(content) = delta["content"].as_str() {
+                    } else if let Some(content) = delta["content"].as_str().or(msg_content) {
                         if !content.is_empty() {
                             // Detect inline <think> tags (Qwen3, GLM, etc.)
                             if content.contains("<think>") && !in_thinking {
@@ -1484,10 +1497,6 @@ pub async fn generate_plot_stream(
                 return Ok(());
             }
         }
-    }
-
-    if in_thinking {
-        full_text.push_str("\n</think>\n");
     }
 
     if !stop_flag.load(Ordering::Relaxed) {
