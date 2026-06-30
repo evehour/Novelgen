@@ -7,6 +7,7 @@ export const DEFAULT_OLLAMA_BASE = 'http://localhost:11434/v1';
 export const DEFAULT_OLLAMA_CLOUD_BASE = 'https://ollama.com/v1';
 export const DEFAULT_OPENCODE_GO_BASE = 'https://opencode.ai/zen/go/v1';
 export const DEFAULT_ZEN_BASE = 'https://opencode.ai/zen/v1';
+export const DEFAULT_CEREBRAS_BASE = 'https://api.cerebras.ai/v1';
 
 export const GOOGLE_MODELS = [
     DEFAULT_GOOGLE_MODEL,
@@ -48,6 +49,12 @@ export const ZEN_MODELS = [
     'deepseek-v4-flash',
 ];
 
+export const CEREBRAS_MODELS = [
+    'gemma-4-31b',
+    'gpt-oss-120b',
+    'zai-glm-4.7',
+];
+
 const DEFAULT_BATCH_SETTINGS: BatchSettingsSnapshot = {
     batchCount: '1',
     autoRefinePlot: false,
@@ -56,7 +63,7 @@ const DEFAULT_BATCH_SETTINGS: BatchSettingsSnapshot = {
     autoRefineNovelInstructions: false,
 };
 export function asApiProvider(value: string | null | undefined): ApiProvider | null {
-    const providers: ApiProvider[] = ['LM Studio', 'Google', 'Ollama', 'Ollama Cloud', 'OpenCode Go', 'Zen'];
+    const providers: ApiProvider[] = ['LM Studio', 'Google', 'Ollama', 'Ollama Cloud', 'OpenCode Go', 'Zen', 'Cerebras'];
     return providers.find(p => p === value) || null;
 }
 
@@ -96,6 +103,8 @@ export function readSavedAppSettings(): SavedAppSettings {
         opencodeGoModel: localStorage.getItem('api-model-opencodego'),
         zenBase: localStorage.getItem('api-base-zen'),
         zenModel: localStorage.getItem('api-model-zen'),
+        cerebrasBase: localStorage.getItem('api-base-cerebras'),
+        cerebrasModel: localStorage.getItem('api-model-cerebras'),
         batch: readBatchSettings(),
     };
 }
@@ -122,6 +131,9 @@ export function saveApiSettings(settings: ApiSettingsSnapshot) {
     } else if (settings.provider === 'Zen') {
         localStorage.setItem('api-base-zen', settings.apiBase);
         localStorage.setItem('api-model-zen', settings.modelName);
+    } else if (settings.provider === 'Cerebras') {
+        localStorage.setItem('api-base-cerebras', settings.apiBase);
+        localStorage.setItem('api-model-cerebras', settings.modelName);
     }
 }
 
@@ -149,6 +161,9 @@ export function getProviderBase(provider: ApiProvider, saved: SavedAppSettings):
     if (provider === 'Zen') {
         return saved.zenBase || DEFAULT_ZEN_BASE;
     }
+    if (provider === 'Cerebras') {
+        return saved.cerebrasBase || DEFAULT_CEREBRAS_BASE;
+    }
     return saved.lmStudioBase || DEFAULT_LM_STUDIO_BASE;
 }
 
@@ -167,6 +182,9 @@ export function getProviderModel(provider: ApiProvider, saved: SavedAppSettings)
     }
     if (provider === 'Zen') {
         return saved.zenModel || '';
+    }
+    if (provider === 'Cerebras') {
+        return saved.cerebrasModel || '';
     }
     return saved.lmStudioModel || '';
 }

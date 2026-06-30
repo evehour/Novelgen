@@ -9,12 +9,16 @@ const OPENCODE_GO_CREDENTIAL_USERNAME: &str = "OpenCode Go API Key";
 
 const ZEN_CREDENTIAL_TARGET: &str = "NovelGen.ZenApiKey";
 const ZEN_CREDENTIAL_USERNAME: &str = "OpenCode Zen API Key";
+
+const CEREBRAS_CREDENTIAL_TARGET: &str = "NovelGen.CerebrasApiKey";
+const CEREBRAS_CREDENTIAL_USERNAME: &str = "Cerebras API Key";
 #[cfg(windows)]
 mod platform {
     use super::{
-        CREDENTIAL_TARGET, CREDENTIAL_USERNAME, OLLAMA_CREDENTIAL_TARGET,
-        OLLAMA_CREDENTIAL_USERNAME, OPENCODE_GO_CREDENTIAL_TARGET,
-        OPENCODE_GO_CREDENTIAL_USERNAME, ZEN_CREDENTIAL_TARGET, ZEN_CREDENTIAL_USERNAME,
+        CEREBRAS_CREDENTIAL_TARGET, CEREBRAS_CREDENTIAL_USERNAME, CREDENTIAL_TARGET,
+        CREDENTIAL_USERNAME, OLLAMA_CREDENTIAL_TARGET, OLLAMA_CREDENTIAL_USERNAME,
+        OPENCODE_GO_CREDENTIAL_TARGET, OPENCODE_GO_CREDENTIAL_USERNAME, ZEN_CREDENTIAL_TARGET,
+        ZEN_CREDENTIAL_USERNAME,
     };
     use std::ffi::c_void;
     use std::ptr::{null_mut, NonNull};
@@ -211,7 +215,11 @@ mod platform {
     }
 
     pub fn write_ollama_cloud_api_key(api_key: &str) -> Result<(), String> {
-        write_credential(OLLAMA_CREDENTIAL_TARGET, OLLAMA_CREDENTIAL_USERNAME, api_key)
+        write_credential(
+            OLLAMA_CREDENTIAL_TARGET,
+            OLLAMA_CREDENTIAL_USERNAME,
+            api_key,
+        )
     }
 
     pub fn delete_ollama_cloud_api_key() -> Result<(), String> {
@@ -223,7 +231,11 @@ mod platform {
     }
 
     pub fn write_opencode_go_api_key(api_key: &str) -> Result<(), String> {
-        write_credential(OPENCODE_GO_CREDENTIAL_TARGET, OPENCODE_GO_CREDENTIAL_USERNAME, api_key)
+        write_credential(
+            OPENCODE_GO_CREDENTIAL_TARGET,
+            OPENCODE_GO_CREDENTIAL_USERNAME,
+            api_key,
+        )
     }
 
     pub fn delete_opencode_go_api_key() -> Result<(), String> {
@@ -240,6 +252,22 @@ mod platform {
 
     pub fn delete_zen_api_key() -> Result<(), String> {
         delete_credential(ZEN_CREDENTIAL_TARGET)
+    }
+
+    pub fn read_cerebras_api_key() -> Result<Option<String>, String> {
+        read_credential(CEREBRAS_CREDENTIAL_TARGET)
+    }
+
+    pub fn write_cerebras_api_key(api_key: &str) -> Result<(), String> {
+        write_credential(
+            CEREBRAS_CREDENTIAL_TARGET,
+            CEREBRAS_CREDENTIAL_USERNAME,
+            api_key,
+        )
+    }
+
+    pub fn delete_cerebras_api_key() -> Result<(), String> {
+        delete_credential(CEREBRAS_CREDENTIAL_TARGET)
     }
 }
 
@@ -292,11 +320,23 @@ mod platform {
     pub fn delete_zen_api_key() -> Result<(), String> {
         Ok(())
     }
+
+    pub fn read_cerebras_api_key() -> Result<Option<String>, String> {
+        Ok(None)
+    }
+
+    pub fn write_cerebras_api_key(_api_key: &str) -> Result<(), String> {
+        Ok(())
+    }
+
+    pub fn delete_cerebras_api_key() -> Result<(), String> {
+        Ok(())
+    }
 }
 
 pub use platform::{
-    delete_google_api_key, delete_ollama_cloud_api_key, delete_opencode_go_api_key,
-    delete_zen_api_key, read_google_api_key, read_ollama_cloud_api_key,
-    read_opencode_go_api_key, read_zen_api_key, write_google_api_key,
-    write_ollama_cloud_api_key, write_opencode_go_api_key, write_zen_api_key,
+    delete_cerebras_api_key, delete_google_api_key, delete_ollama_cloud_api_key,
+    delete_opencode_go_api_key, delete_zen_api_key, read_cerebras_api_key, read_google_api_key,
+    read_ollama_cloud_api_key, read_opencode_go_api_key, read_zen_api_key, write_cerebras_api_key,
+    write_google_api_key, write_ollama_cloud_api_key, write_opencode_go_api_key, write_zen_api_key,
 };

@@ -1,4 +1,4 @@
-export type ApiProvider = 'LM Studio' | 'Google' | 'Ollama' | 'Ollama Cloud' | 'OpenCode Go' | 'Zen';
+export type ApiProvider = 'LM Studio' | 'Google' | 'Ollama' | 'Ollama Cloud' | 'OpenCode Go' | 'Zen' | 'Cerebras';
 export type Language = 'Korean' | 'Japanese' | 'English';
 export type ThemeMode = 'light' | 'dark';
 export type TextDropTarget = 'systemPrompt' | 'seed' | 'plot' | 'novel';
@@ -43,6 +43,8 @@ export interface SavedAppSettings {
     opencodeGoModel: string | null;
     zenBase: string | null;
     zenModel: string | null;
+    cerebrasBase: string | null;
+    cerebrasModel: string | null;
     batch: BatchSettingsSnapshot;
 }
 

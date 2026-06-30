@@ -969,7 +969,10 @@ pub async fn generate_novel_stream(
         body_map.insert("max_tokens".to_string(), json!(final_max_tokens));
         body_map.insert("stream".to_string(), json!(true));
 
-        if !params.api_base.contains("googleapis.com") && !params.api_base.contains("opencode.ai") {
+        if !params.api_base.contains("googleapis.com")
+            && !params.api_base.contains("opencode.ai")
+            && !params.api_base.contains("cerebras.ai")
+        {
             body_map.insert(
                 "repetition_penalty".to_string(),
                 json!(params.repetition_penalty),
@@ -1349,7 +1352,10 @@ pub async fn generate_plot_stream(
     body_map.insert("max_tokens".to_string(), json!(final_max_tokens));
     body_map.insert("stream".to_string(), json!(true));
 
-    if !api_base.contains("googleapis.com") && !api_base.contains("opencode.ai") {
+    if !api_base.contains("googleapis.com")
+        && !api_base.contains("opencode.ai")
+        && !api_base.contains("cerebras.ai")
+    {
         body_map.insert("repetition_penalty".to_string(), json!(repetition_penalty));
     }
 
