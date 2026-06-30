@@ -10,6 +10,7 @@ import {
 import {
     DEFAULT_GOOGLE_MODEL,
     DEFAULT_LM_STUDIO_MODEL,
+    CEREBRAS_MODELS,
     GOOGLE_MODELS,
     OPENCODE_GO_MODELS,
     ZEN_MODELS,
@@ -61,7 +62,7 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
     async function persistGoogleApiKey() {
         try {
             const provider = getProvider();
-            const apiKeyProviders: ApiProvider[] = ['Google', 'Ollama Cloud', 'OpenCode Go', 'Zen'];
+            const apiKeyProviders: ApiProvider[] = ['Google', 'Ollama Cloud', 'OpenCode Go', 'Zen', 'Cerebras'];
             if (!apiKeyProviders.includes(provider)) return;
             const savedKey = await saveApiKey(provider, getApiSettings().apiKey);
             runtimeViewStateStore.setApiSettings({ apiKey: savedKey });
@@ -122,7 +123,7 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
             const savedSettings = readSavedAppSettings();
 
             let loadedKey = '';
-            const apiKeyProviders: ApiProvider[] = ['Google', 'Ollama Cloud', 'OpenCode Go', 'Zen'];
+            const apiKeyProviders: ApiProvider[] = ['Google', 'Ollama Cloud', 'OpenCode Go', 'Zen', 'Cerebras'];
             if (apiKeyProviders.includes(provider)) {
                 loadedKey = await loadApiKey(provider);
             }
@@ -173,6 +174,19 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
                         : [...ZEN_MODELS, modelName],
                     modelName,
                 });
+            } else if (provider === 'Cerebras') {
+                const savedCerebrasModel = getProviderModel(provider, savedSettings);
+                const modelName = savedCerebrasModel || CEREBRAS_MODELS[0];
+                runtimeViewStateStore.setApiSettings({
+                    provider,
+                    apiBase: getProviderBase(provider, savedSettings),
+                    apiKey: loadedKey,
+                    showApiKey: true,
+                    modelOptions: CEREBRAS_MODELS.includes(modelName)
+                        ? CEREBRAS_MODELS
+                        : [...CEREBRAS_MODELS, modelName],
+                    modelName,
+                });
             } else if (provider === 'Ollama') {
                 const savedOllamaModel = getProviderModel(provider, savedSettings);
                 const modelName = savedOllamaModel || '';
@@ -199,7 +213,7 @@ export function createAppSettingsController({ getProvider }: AppSettingsControll
                 });
             }
 
-            const fetchableProviders: ApiProvider[] = ['LM Studio', 'Ollama', 'Ollama Cloud', 'OpenCode Go', 'Zen'];
+            const fetchableProviders: ApiProvider[] = ['LM Studio', 'Ollama', 'Ollama Cloud', 'OpenCode Go', 'Zen', 'Cerebras'];
             if (!skipModelFetch && fetchableProviders.includes(provider)) {
                 await refreshModels();
             }

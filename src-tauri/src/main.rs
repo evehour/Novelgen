@@ -454,6 +454,12 @@ fn load_api_key(provider: Option<String>) -> Result<String, String> {
             key.map(|value| normalize_api_key(&value))
                 .unwrap_or_default()
         })
+    } else if provider == "Cerebras" {
+        println!("[Backend] Loading Cerebras API key from Windows Credential Manager");
+        credentials::read_cerebras_api_key().map(|key| {
+            key.map(|value| normalize_api_key(&value))
+                .unwrap_or_default()
+        })
     } else {
         Ok(String::new())
     }
@@ -494,6 +500,14 @@ fn save_api_key(provider: Option<String>, api_key: String) -> Result<String, Str
             Ok(String::new())
         } else {
             credentials::write_zen_api_key(&key)?;
+            Ok(key)
+        }
+    } else if provider == "Cerebras" {
+        if key.is_empty() {
+            credentials::delete_cerebras_api_key()?;
+            Ok(String::new())
+        } else {
+            credentials::write_cerebras_api_key(&key)?;
             Ok(key)
         }
     } else {

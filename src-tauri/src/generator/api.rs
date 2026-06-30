@@ -105,6 +105,8 @@ pub const ZEN_MODELS: &[&str] = &[
     "deepseek-v4-flash",
 ];
 
+pub const CEREBRAS_MODELS: &[&str] = &["gemma-4-31b", "gpt-oss-120b", "zai-glm-4.7"];
+
 pub async fn fetch_models_impl(api_base: &str, api_key: &str) -> Result<Vec<String>, String> {
     let client = Client::builder()
         .timeout(Duration::from_secs(5))
@@ -122,6 +124,8 @@ pub async fn fetch_models_impl(api_base: &str, api_key: &str) -> Result<Vec<Stri
         OPENCODE_GO_MODELS.iter().map(|&s| s.to_string()).collect()
     } else if api_base.contains("opencode.ai/zen") {
         ZEN_MODELS.iter().map(|&s| s.to_string()).collect()
+    } else if api_base.contains("cerebras.ai") {
+        CEREBRAS_MODELS.iter().map(|&s| s.to_string()).collect()
     } else {
         LM_STUDIO_MODELS.iter().map(|&s| s.to_string()).collect()
     };
@@ -275,7 +279,10 @@ pub async fn chat_completion(
     }
     body_map.insert("max_tokens".to_string(), json!(final_max_tokens));
 
-    if !api_base.contains("googleapis.com") && !api_base.contains("opencode.ai") {
+    if !api_base.contains("googleapis.com")
+        && !api_base.contains("opencode.ai")
+        && !api_base.contains("cerebras.ai")
+    {
         body_map.insert("repetition_penalty".to_string(), json!(repetition_penalty));
     }
 

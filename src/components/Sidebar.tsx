@@ -40,6 +40,7 @@ function ApiSettingsCard({
                     <option value="Ollama Cloud">Ollama Cloud</option>
                     <option value="OpenCode Go">OpenCode Go</option>
                     <option value="Zen">OpenCode Zen</option>
+                    <option value="Cerebras">Cerebras</option>
                 </select>
             </div>
 

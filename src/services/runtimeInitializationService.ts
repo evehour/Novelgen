@@ -4,6 +4,8 @@ import {
 } from '../modules/ui_preferences.js';
 import { loadApiKey } from './credentialService.js';
 import {
+    CEREBRAS_MODELS,
+    DEFAULT_CEREBRAS_BASE,
     DEFAULT_LM_STUDIO_MODEL,
     DEFAULT_OPENCODE_GO_BASE,
     DEFAULT_ZEN_BASE,
@@ -58,7 +60,7 @@ export async function initializeNovelgenRuntime({
     try {
         console.log('[Frontend] Requesting API key load for provider:', savedProvider);
         let key = '';
-        const apiKeyProviders = ['Google', 'Ollama Cloud', 'OpenCode Go', 'Zen'];
+        const apiKeyProviders = ['Google', 'Ollama Cloud', 'OpenCode Go', 'Zen', 'Cerebras'];
         if (apiKeyProviders.includes(savedProvider)) {
             key = await loadApiKey(savedProvider);
         }
@@ -76,7 +78,7 @@ export async function initializeNovelgenRuntime({
 
     if (savedBase) runtimeViewStateStore.setApiSettings({ apiBase: savedBase });
 
-    const fetchableProviders = ['LM Studio', 'Ollama', 'Ollama Cloud', 'OpenCode Go', 'Zen'];
+    const fetchableProviders = ['LM Studio', 'Ollama', 'Ollama Cloud', 'OpenCode Go', 'Zen', 'Cerebras'];
     if (fetchableProviders.includes(savedProvider)) {
         await refreshModels();
     }
@@ -102,6 +104,12 @@ export async function initializeNovelgenRuntime({
             modelName: ZEN_MODELS[0],
             modelOptions: ZEN_MODELS,
             apiBase: savedSettings.zenBase || DEFAULT_ZEN_BASE,
+        });
+    } else if (savedProvider === 'Cerebras') {
+        runtimeViewStateStore.setApiSettings({
+            modelName: CEREBRAS_MODELS[0],
+            modelOptions: CEREBRAS_MODELS,
+            apiBase: savedSettings.cerebrasBase || DEFAULT_CEREBRAS_BASE,
         });
     } else if (savedProvider === 'Ollama' || savedProvider === 'Ollama Cloud') {
         runtimeViewStateStore.setApiSettings({ modelName: '' });
